@@ -2,24 +2,50 @@ using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
+
+  // Singleton pattern
   public static Player Instance { get; private set; }
 
+  /// <summary>
+  /// oyuncu seçili kutuyu deðiþtirdiðinde çalýþacak
+  /// burada Publisher'ýmýz Player
+  /// subs'lar ise kutular olucak. Kutular bu eventi dinlemede bekliyor.
+  /// Deðiþim olduðunda tüm sub olan kutular atadýklarý fonksiyonu execute edicek (hide or show)
+  /// hangi kutuyu seçtiðimizi sub olan kutularýn anlamasý içinde argüman olarak yolluyoruz
+  /// </summary>
   public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
-
   public class OnSelectedCounterChangedEventArgs : EventArgs {
     public ClearCounter selectedCounter;
   }
 
+  // HIZ
   [SerializeField] private float moveSpeed = 7f;
 
+  // NEW INPUT SYSTEM
   [SerializeField] private GameInput gameInput;
+
+  /// <summary>
+  /// kutularý raycast ile hit yaparken maskeleme yapmak için
+  /// </summary>
   [SerializeField] private LayerMask countersLayerMask;
 
+  // Animation
   private bool isWalking;
+
+  /// <summary>
+  /// hareket etmeyi býraktýðýmýzda en son interact ettiðimiz yönü kaybetmemek için
+  /// mesela kutunun önüne kadar geldin hareketi kestin son yön tekrar sýfýrlanýyor sýfýrlanmadan önceki deðeri tutar
+  /// </summary>
   private Vector3 lastInteractDir;
+
+  /// <summary>
+  /// En son seçili olan kutuyu tutar.
+  /// boþ arazide geziyorsak yakýnýmýzda kutu yoksa bu deðer null oluyor
+  /// </summary>
   private ClearCounter selectedCounter;
 
   private void Awake() {
+    // Singleton
     if (Instance != null) {
       Debug.LogError("there is more than one player");
       return;
@@ -28,6 +54,8 @@ public class Player : MonoBehaviour {
   }
 
   private void Start() {
+    // interaction tuþuna (E) tuþuna basýnca çalýþan event'e sub oluyoruz e basýldýðýnda
+    // GameInput_OnInteratAction çalýþacak olan fonksiyon
     gameInput.OnInteratAction += GameInput_OnInteratAction;
   }
 
@@ -55,16 +83,16 @@ public class Player : MonoBehaviour {
     float interactDistance = 2f;
     if (Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactDistance, countersLayerMask)) {
       if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter)) {
-        // has Clear Counte
         if (clearCounter != selectedCounter) {
+          // buraya geldiysek bir kutuya deymekteyiz.
           SetSelectedCounter(clearCounter);
         }
       } else {
-        // clear counter scripti yok ise
+        // clear counter scripti çarptýðýmýz objede yok ise
         SetSelectedCounter(null);
       }
     } else {
-      // there is nothing in the front
+      // önümüzde hiç bir kutu yok açýk arazi
       SetSelectedCounter(null);
     }
   }

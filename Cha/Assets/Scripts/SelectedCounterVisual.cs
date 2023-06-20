@@ -1,7 +1,17 @@
 using UnityEngine;
 
 public class SelectedCounterVisual : MonoBehaviour {
+
+  /// <summary>
+  /// bu deðiþken kutuyu kapsayan en dýþtaki gameObject'tir
+  /// player'daki Player_OnSelectedCounterChanged eventine sub olduktan sonra deðiþen kutu biz miyiz onun kontrolü için
+  /// </summary>
   [SerializeField] private ClearCounter clearCounter;
+
+  /// <summary>
+  /// seçiliysek tipimiz deðiþsin die aç kapa yapacaðýmz obje
+  /// Selected gameObjesinin altýndaki visual
+  /// </summary>
   [SerializeField] private GameObject visualGameObject;
 
   private void Start() {
@@ -15,6 +25,7 @@ public class SelectedCounterVisual : MonoBehaviour {
       Hide();
     }
   }
+
   private void Show() {
     visualGameObject.SetActive(true);
   }
