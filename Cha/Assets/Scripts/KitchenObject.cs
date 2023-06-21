@@ -26,7 +26,7 @@ public class KitchenObject : MonoBehaviour {
 
     // yeni Parent'a kendimizi iþaretle
     if (kitchenObjectParent.HasKitchenObject()) {
-      Debug.LogError("clear counter has already an object");
+      Debug.LogError("counter has already an object");
       return;
     }
     kitchenObjectParent.SetKitchenObject(this);
@@ -39,5 +39,27 @@ public class KitchenObject : MonoBehaviour {
   /// üzerinde olduðumuz Parent'ý dön
   public IKitchenObjectParent GetKitchenObjectParent() {
     return kitchenObjectParent;
+  }
+
+  public void DestroyItelf() {
+    // parent'ý temizle
+    kitchenObjectParent.ClearKitchenObject();
+
+    // kendini yok et
+    Destroy(gameObject);
+  }
+
+  /// kendi kendini swpan et
+  public static KitchenObject SpwanKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent) {
+    // malzemeyi spwan et
+    Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab);
+
+    // malzemeyi çek
+    var kitchenObject = kitchenObjectTransform.GetComponent<KitchenObject>();
+
+    // parent'ýný ayarla
+    kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
+
+    return kitchenObject;
   }
 }

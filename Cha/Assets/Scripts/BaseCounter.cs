@@ -12,6 +12,10 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
     Debug.LogError("BaseCounter.interact");
   }
 
+  public virtual void InteractAlternate(Player player) {
+    Debug.LogError("BaseCounter.interact");
+  }
+
   /// kutunun spawn noktasýný dön
   public Transform GetKitchenObjectFollowTransform() {
     return counterTopPoint;

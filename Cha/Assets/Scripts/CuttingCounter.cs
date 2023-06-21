@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class ClearCounter : BaseCounter {
+public class CuttingCounter : BaseCounter {
 
-  /// bu kutunun üzerinde spawn edeceðimiz scriptable obje (malzeme)
-  [SerializeField] private KitchenObjectSO kitchenObjectSO;
+  /// kesildikten sonraki hali için obje
+  [SerializeField] private KitchenObjectSO cutKitchenObjectSO;
 
   public override void Interact(Player player) {
     if (!HasKitchenObject()) {
@@ -32,6 +32,20 @@ public class ClearCounter : BaseCounter {
         // kutunun üzerindeki malzemeyi oyuncuya ver
         GetKitchenObject().SetKitchenObjectParent(player);
       }
+    }
+  }
+
+  public override void InteractAlternate(Player player) {
+    if (HasKitchenObject()) {
+      // kesilmesi gereken malzeme var
+
+      // öncekini sil
+      GetKitchenObject().DestroyItelf();
+
+      // yenisini spwan et
+      KitchenObject.SpwanKitchenObject(cutKitchenObjectSO, this);
+    } else {
+      // kutunun üzeri boþ
     }
   }
 }

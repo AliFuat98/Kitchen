@@ -10,12 +10,13 @@ public class ContainerCounter : BaseCounter {
   [SerializeField] private KitchenObjectSO kitchenObjectSO;
 
   public override void Interact(Player player) {
-    // malzemeyi oluþtur
-    Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab);
+    if (!player.HasKitchenObject()) {
+      // oyuncunun eli boþ
 
-    // malzemeyi oyuncuya ver
-    kitchenObjectTransform.GetComponent<KitchenObject>().SetKitchenObjectParent(player);
+      // yeni malzemeyi oyuncunun elinde spwan et
+      KitchenObject.SpwanKitchenObject(kitchenObjectSO, player);
 
-    OnPlayerGrabbedObject?.Invoke(this, EventArgs.Empty);
+      OnPlayerGrabbedObject?.Invoke(this, EventArgs.Empty);
+    }
   }
 }

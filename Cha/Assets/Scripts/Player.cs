@@ -59,9 +59,19 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
   }
 
   private void Start() {
-    // interaction tuþuna (E) tuþuna basýnca çalýþan event'e sub oluyoruz e basýldýðýnda
-    // GameInput_OnInteratAction çalýþacak olan fonksiyon
-    gameInput.OnInteratAction += GameInput_OnInteratAction;
+    // interaction tuþuna (E and F) tuþuna basýnca çalýþan event'e sub oluyoruz
+
+    // E basýnca GameInput_OnInteratAction çalýþacak
+    gameInput.OnInteractAction += GameInput_OnInteratAction;
+
+    // F basýnca GameInput_OnInteractAlternateAction çalýþacak
+    gameInput.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+  }
+
+  private void GameInput_OnInteractAlternateAction(object sender, EventArgs e) {
+    if (selectedCounter != null) {
+      selectedCounter.InteractAlternate(this);
+    }
   }
 
   private void GameInput_OnInteratAction(object sender, System.EventArgs e) {
@@ -122,7 +132,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     // X veya Z de engel Var
     if (!canMove) {
       Vector3 moveDirX = new Vector3(moveDir.x, 0f, 0f).normalized;
-      canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
+      canMove = moveDir.x != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
 
       // X eksenin de engel yok Z ekseninde Var
       if (canMove) {
@@ -131,14 +141,14 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
         // X ekseninde engel var Z ekseninde yok
       } else {
         Vector3 moveDirZ = new Vector3(0f, 0f, moveDir.z).normalized;
-        canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
+        canMove = moveDir.z != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
 
         // X engel var Z yok
         if (canMove) {
           moveDir = moveDirZ;
         } else {
           // 2 tarafta engelli
-          moveDir = Vector3.zero;
+          //moveDir = Vector3.zero;
         }
       }
     }
