@@ -1,41 +1,43 @@
 using UnityEngine;
 
 public class KitchenObject : MonoBehaviour {
+
+  /// malzemenin projede sabit duran SO'su
   [SerializeField] private KitchenObjectSO kitchenObjectSO;
 
-  /// üzerinde bulunduðumuz kutu
-  private ClearCounter clearCounter;
+  /// üzerinde bulunduðumuz Parent (player yada kutu)
+  private IKitchenObjectParent kitchenObjectParent;
 
   public KitchenObjectSO GetKitchenObjectSO() {
     return kitchenObjectSO;
   }
 
-  /// baþka kutuya ýþýnlanma
-  public void SetClearCounter(ClearCounter clearCounter) {
-    if (this.clearCounter != null) {
-      // bir kutunun üzerindeyiz
+  /// baþka Parent'a ýþýnlanma
+  public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent) {
+    if (this.kitchenObjectParent != null) {
+      // bir Parent'ýn üzerindeyiz
 
-      // üzerinde bulunduðumuz eski kutuyu temizle
-      this.clearCounter.ClearKitchenObject();
+      // üzerinde bulunduðumuz eski Parent'ý temizle
+      this.kitchenObjectParent.ClearKitchenObject();
     }
 
-    // yeni kutumuzu iþaretle
-    this.clearCounter = clearCounter;
+    // yeni Parent'ýmýzý iþaretle
+    this.kitchenObjectParent = kitchenObjectParent;
 
-    // yeni kutuya kendimizi iþaretle
-    if (clearCounter.HasKitchenObject()) {
+    // yeni Parent'a kendimizi iþaretle
+    if (kitchenObjectParent.HasKitchenObject()) {
       Debug.LogError("clear counter has already an object");
       return;
     }
-    clearCounter.SetKitchenObject(this);
+    kitchenObjectParent.SetKitchenObject(this);
 
-    // kendini yeni gelen kutuya ýþýnla
-    transform.parent = clearCounter.GetKitchenObjectFollowTransform();
+    // kendini yeni gelen Parent'a ýþýnla
+    transform.parent = kitchenObjectParent.GetKitchenObjectFollowTransform();
     transform.localPosition = Vector3.zero;
   }
 
-  /// üzerinde olduðumuz kutuyu dön
-  public ClearCounter GetClearCounter() {
-    return clearCounter;
+  /// üzerinde olduðumuz Parent'ý dön
+  public IKitchenObjectParent GetKitchenObjectParent() {
+    return kitchenObjectParent;
   }
 }

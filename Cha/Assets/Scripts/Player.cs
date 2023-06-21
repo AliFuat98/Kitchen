@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour, IKitchenObjectParent {
 
-  // Singleton pattern
+  /// Singleton pattern
   public static Player Instance { get; private set; }
 
   /// <summary>
@@ -14,22 +14,27 @@ public class Player : MonoBehaviour {
   /// hangi kutuyu seçtiðimizi sub olan kutularýn anlamasý içinde argüman olarak yolluyoruz
   /// </summary>
   public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+
   public class OnSelectedCounterChangedEventArgs : EventArgs {
     public ClearCounter selectedCounter;
   }
 
-  // HIZ
+  /// HIZ
   [SerializeField] private float moveSpeed = 7f;
 
-  // NEW INPUT SYSTEM
+  /// NEW INPUT SYSTEM instance
   [SerializeField] private GameInput gameInput;
 
-  /// <summary>
   /// kutularý raycast ile hit yaparken maskeleme yapmak için
-  /// </summary>
   [SerializeField] private LayerMask countersLayerMask;
 
-  // Animation
+  /// malzemeyi nerde spawn edicez = oyuncunun malzemeyi tutma noktasý
+  [SerializeField] private Transform kitchenObjectHoldPoint;
+
+  /// oyuncunun üzerindeki malzeme
+  private KitchenObject kitchenObject;
+
+  /// Animation
   private bool isWalking;
 
   /// <summary>
@@ -61,7 +66,7 @@ public class Player : MonoBehaviour {
 
   private void GameInput_OnInteratAction(object sender, System.EventArgs e) {
     if (selectedCounter != null) {
-      selectedCounter.Interact();
+      selectedCounter.Interact(this);
     }
   }
 
@@ -151,5 +156,30 @@ public class Player : MonoBehaviour {
 
   public bool IsWalking() {
     return isWalking;
+  }
+
+  /// oyuncunun spawn noktasýný dön
+  public Transform GetKitchenObjectFollowTransform() {
+    return kitchenObjectHoldPoint;
+  }
+
+  /// oyuncunun üzerindeki malzemeyi deðiþtir
+  public void SetKitchenObject(KitchenObject kitchenObject) {
+    this.kitchenObject = kitchenObject;
+  }
+
+  /// oyuncunun üzerindeki malzemeyi dön
+  public KitchenObject GetKitchenObject() {
+    return kitchenObject;
+  }
+
+  /// oyuncunun üzerini temizle
+  public void ClearKitchenObject() {
+    kitchenObject = null;
+  }
+
+  /// oyuncunun üzerinde bir malzeme var mý?
+  public bool HasKitchenObject() {
+    return kitchenObject != null;
   }
 }

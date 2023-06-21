@@ -3,13 +3,18 @@ using UnityEngine;
 
 public class GameInput : MonoBehaviour {
 
+  /// interact (E) tuþu için event
   public event EventHandler OnInteratAction;
 
+  /// new input system
   private PlayerInputActions playerInputActions;
 
   private void Awake() {
+    /// open new input system
     playerInputActions = new PlayerInputActions();
     playerInputActions.Player.Enable();
+
+    /// interact (E) tuþuna basýnca çalýþacak event
     playerInputActions.Player.Interact.performed += Interact_performed;
   }
 
