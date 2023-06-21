@@ -6,20 +6,20 @@ public class SelectedCounterVisual : MonoBehaviour {
   /// bu deðiþken kutuyu kapsayan en dýþtaki gameObject'tir
   /// player'daki Player_OnSelectedCounterChanged eventine sub olduktan sonra deðiþen kutu biz miyiz onun kontrolü için
   /// </summary>
-  [SerializeField] private ClearCounter clearCounter;
+  [SerializeField] private BaseCounter baseCounter;
 
   /// <summary>
   /// seçiliysek tipimiz deðiþsin die aç kapa yapacaðýmz obje
   /// Selected gameObjesinin altýndaki visual
   /// </summary>
-  [SerializeField] private GameObject visualGameObject;
+  [SerializeField] private GameObject[] visualGameObjectArray;
 
   private void Start() {
     Player.Instance.OnSelectedCounterChanged += Player_OnSelectedCounterChanged;
   }
 
   private void Player_OnSelectedCounterChanged(object sender, Player.OnSelectedCounterChangedEventArgs e) {
-    if (e.selectedCounter == clearCounter) {
+    if (e.selectedCounter == baseCounter) {
       Show();
     } else {
       Hide();
@@ -27,10 +27,14 @@ public class SelectedCounterVisual : MonoBehaviour {
   }
 
   private void Show() {
-    visualGameObject.SetActive(true);
+    foreach (var visualGameObject in visualGameObjectArray) {
+      visualGameObject.SetActive(true);
+    }
   }
 
   private void Hide() {
-    visualGameObject.SetActive(false);
+    foreach (var visualGameObject in visualGameObjectArray) {
+      visualGameObject.SetActive(false);
+    }
   }
 }

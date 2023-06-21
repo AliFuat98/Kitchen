@@ -16,7 +16,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
   public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
 
   public class OnSelectedCounterChangedEventArgs : EventArgs {
-    public ClearCounter selectedCounter;
+    public BaseCounter selectedCounter;
   }
 
   /// HIZ
@@ -47,7 +47,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
   /// En son seçili olan kutuyu tutar.
   /// boþ arazide geziyorsak yakýnýmýzda kutu yoksa bu deðer null oluyor
   /// </summary>
-  private ClearCounter selectedCounter;
+  private BaseCounter selectedCounter;
 
   private void Awake() {
     // Singleton
@@ -87,10 +87,10 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
     float interactDistance = 2f;
     if (Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactDistance, countersLayerMask)) {
-      if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter)) {
-        if (clearCounter != selectedCounter) {
+      if (raycastHit.transform.TryGetComponent(out BaseCounter baseCounter)) {
+        if (baseCounter != selectedCounter) {
           // buraya geldiysek bir kutuya deymekteyiz.
-          SetSelectedCounter(clearCounter);
+          SetSelectedCounter(baseCounter);
         }
       } else {
         // clear counter scripti çarptýðýmýz objede yok ise
@@ -102,7 +102,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     }
   }
 
-  private void SetSelectedCounter(ClearCounter selectedCounter) {
+  private void SetSelectedCounter(BaseCounter selectedCounter) {
     this.selectedCounter = selectedCounter;
     OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs {
       selectedCounter = selectedCounter
