@@ -929,6 +929,18 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 230685539}
+--- !u!114 &1968430411 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3393100029012107621, guid: 8dfdf957f9fcd3e4397b54298c41fb17,
+    type: 3}
+  m_PrefabInstance: {fileID: 1986187089}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 218fd7b44e489204797baf73b2610087, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1986187089
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1073,10 +1085,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3393100029012107621, guid: 8dfdf957f9fcd3e4397b54298c41fb17,
         type: 3}
+      propertyPath: testing
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393100029012107621, guid: 8dfdf957f9fcd3e4397b54298c41fb17,
+        type: 3}
       propertyPath: kitchenObjectSO
       value: 
       objectReference: {fileID: 11400000, guid: 2006a8ca4ae853747a9c830a7c3ad2ae,
         type: 2}
+    - target: {fileID: 3393100029012107621, guid: 8dfdf957f9fcd3e4397b54298c41fb17,
+        type: 3}
+      propertyPath: secondClearCounter
+      value: 
+      objectReference: {fileID: 1968430411}
     - target: {fileID: 4044957262894387862, guid: 8dfdf957f9fcd3e4397b54298c41fb17,
         type: 3}
       propertyPath: m_Name
