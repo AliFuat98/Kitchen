@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class CuttingCounter : BaseCounter {
 
-  /// kesildikten sonraki hali için obje
-  [SerializeField] private KitchenObjectSO cutKitchenObjectSO;
+  /// kesildikten sonra neye dönüþeceðini depolar
+  [SerializeField] private CuttingRecipeSO[] cuttingRecipeSOArray;
 
   public override void Interact(Player player) {
     if (!HasKitchenObject()) {
@@ -12,12 +12,20 @@ public class CuttingCounter : BaseCounter {
       if (player.HasKitchenObject()) {
         // oyuncunun elinde malzeme var
 
-        // malzemeyi kutunun üzerine ýþýnla
-        player.GetKitchenObject().SetKitchenObjectParent(this);
+        if (HasRecipeWithInput(player.GetKitchenObject().GetKitchenObjectSO())) {
+          // oyuncunun elinde kesilebilir bir malzeme var
+
+          // malzemeyi kutunun üzerine býrak
+          player.GetKitchenObject().SetKitchenObjectParent(this);
+        } else {
+          // oyuncunun elinde kesilebilir bir malzeme yok
+
+          // ---
+        }
       } else {
         // oyuncunun eli boþ
 
-        // bir þey yapmamýza gerek yok
+        // ---
       }
     } else {
       // kutunun üzeri dolu
@@ -25,7 +33,7 @@ public class CuttingCounter : BaseCounter {
       if (player.HasKitchenObject()) {
         // oyuncunun elinde malzeme var
 
-        // bir þey yapmamýza gerek yok
+        // ---
       } else {
         // oyuncunun eli boþ
 
@@ -39,13 +47,40 @@ public class CuttingCounter : BaseCounter {
     if (HasKitchenObject()) {
       // kesilmesi gereken malzeme var
 
+      // kesildikten sonra neye dönüþecek BUL
+      var outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
+
+      if (outputKitchenObjectSO == null) {
+        // kesilemez bir malzeme kesimi durdur.
+        return;
+      }
+
       // öncekini sil
       GetKitchenObject().DestroyItelf();
 
       // yenisini spwan et
-      KitchenObject.SpwanKitchenObject(cutKitchenObjectSO, this);
+      KitchenObject.SpwanKitchenObject(outputKitchenObjectSO, this);
     } else {
       // kutunun üzeri boþ
     }
+  }
+
+  /// domates verirsen kesilmiþ domates dönecek
+  private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO) {
+    foreach (var cuttingRecipeSO in cuttingRecipeSOArray) {
+      if (cuttingRecipeSO.input == inputKitchenObjectSO) {
+        return cuttingRecipeSO.output;
+      }
+    }
+    return null;
+  }
+
+  private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO) {
+    foreach (var cuttingRecipeSO in cuttingRecipeSOArray) {
+      if (cuttingRecipeSO.input == inputKitchenObjectSO) {
+        return true;
+      }
+    }
+    return false;
   }
 }
