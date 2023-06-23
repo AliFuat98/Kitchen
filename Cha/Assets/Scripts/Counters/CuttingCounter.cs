@@ -1,14 +1,10 @@
 using System;
 using UnityEngine;
 
-public class CuttingCounter : BaseCounter {
+public class CuttingCounter : BaseCounter, IHasProgress {
 
   /// progres deðiþtiðinde çalýþacak event
-  public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
-
-  public class OnProgressChangedEventArgs : EventArgs {
-    public float progressNormalized;
-  }
+  public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
 
   /// animasyonun oynamasý için event
   public event EventHandler OnCut;
@@ -37,7 +33,7 @@ public class CuttingCounter : BaseCounter {
           // normalized veri için max deðer lazým tarifin içinde bu
           var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
 
-          OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs {
+          OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
             progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax,
           });
         } else {
@@ -76,7 +72,7 @@ public class CuttingCounter : BaseCounter {
 
       var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
 
-      OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs {
+      OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
         progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax,
       });
 
