@@ -49,6 +49,18 @@ public class KitchenObject : MonoBehaviour {
     Destroy(gameObject);
   }
 
+  public bool TryGetPlate(out PlateKitchenObject plateKitchenObject) {
+    if (this is PlateKitchenObject) {
+      // malzeme tabak
+      plateKitchenObject = this as PlateKitchenObject;
+      return true;
+    }
+
+    // malzeme tabak deðil
+    plateKitchenObject = null;
+    return false;
+  }
+
   /// kendi kendini swpan et
   public static KitchenObject SpwanKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent) {
     // malzemeyi spwan et

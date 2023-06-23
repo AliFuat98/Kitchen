@@ -52,7 +52,20 @@ public class CuttingCounter : BaseCounter, IHasProgress {
       if (player.HasKitchenObject()) {
         // oyuncunun elinde malzeme var
 
-        // ---
+        if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject)) {
+          // oyuncunun elindeki malzeme bir tabak => out parametresiyle ulaþýlabilir
+
+          if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO())) {
+            // kutunun üzerindeki malzeme tabaða eklenebilir. => eklendi
+
+            // kutunun üzerindekini yok et
+            GetKitchenObject().DestroyItelf();
+          }
+        } else {
+          // oyuncu tabak hariç baþka bir þey taþýyor
+
+          // ---
+        }
       } else {
         // oyuncunun eli boþ
 
