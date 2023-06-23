@@ -1,9 +1,22 @@
+using System;
 using UnityEngine;
 
 public class CuttingCounter : BaseCounter {
 
+  /// progres deðiþtiðinde çalýþacak event
+  public event EventHandler<OnProgressChangedEventArgs> OnProgressChanged;
+
+  public class OnProgressChangedEventArgs : EventArgs {
+    public float progressNormalized;
+  }
+
+  /// animasyonun oynamasý için event
+  public event EventHandler OnCut;
+
   /// kesildikten sonra neye dönüþeceðini depolar
   [SerializeField] private CuttingRecipeSO[] cuttingRecipeSOArray;
+
+  private int cuttingProgress;
 
   public override void Interact(Player player) {
     if (!HasKitchenObject()) {
@@ -17,6 +30,16 @@ public class CuttingCounter : BaseCounter {
 
           // malzemeyi kutunun üzerine býrak
           player.GetKitchenObject().SetKitchenObjectParent(this);
+
+          // kesme iþlemi süreç baþlat
+          cuttingProgress = 0;
+
+          // normalized veri için max deðer lazým tarifin içinde bu
+          var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+
+          OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs {
+            progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax,
+          });
         } else {
           // oyuncunun elinde kesilebilir bir malzeme yok
 
@@ -43,44 +66,63 @@ public class CuttingCounter : BaseCounter {
     }
   }
 
+  /// F tuþuna basýlýnca çalýþýr kesim
   public override void InteractAlternate(Player player) {
-    if (HasKitchenObject()) {
-      // kesilmesi gereken malzeme var
+    if (HasKitchenObject() && HasRecipeWithInput(GetKitchenObject().GetKitchenObjectSO())) {
+      // kesilmesi gereken malzeme var  &&  malzeme için tarif var kesilebilir
 
-      // kesildikten sonra neye dönüþecek BUL
-      var outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
+      // bir adet kesme iþlemi ekle
+      cuttingProgress++;
 
-      if (outputKitchenObjectSO == null) {
-        // kesilemez bir malzeme kesimi durdur.
-        return;
+      var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+
+      OnProgressChanged?.Invoke(this, new OnProgressChangedEventArgs {
+        progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax,
+      });
+
+      OnCut?.Invoke(this, EventArgs.Empty);
+
+      if (cuttingProgress >= cuttingRecipeSO.cuttingProgressMax) {
+        // son kesme iþlemine geldik dönüþüm gerçekleþebilir
+
+        // kesildikten sonra neye dönüþecek BUL
+        var outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
+
+        // öncekini sil
+        GetKitchenObject().DestroyItelf();
+
+        // yenisini spwan et
+        KitchenObject.SpwanKitchenObject(outputKitchenObjectSO, this);
       }
-
-      // öncekini sil
-      GetKitchenObject().DestroyItelf();
-
-      // yenisini spwan et
-      KitchenObject.SpwanKitchenObject(outputKitchenObjectSO, this);
     } else {
       // kutunun üzeri boþ
     }
   }
 
-  /// domates verirsen kesilmiþ domates dönecek
-  private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO) {
+  /// gelen malzemenin input olduðu tarifi ver
+  private CuttingRecipeSO GetCuttingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO) {
     foreach (var cuttingRecipeSO in cuttingRecipeSOArray) {
       if (cuttingRecipeSO.input == inputKitchenObjectSO) {
-        return cuttingRecipeSO.output;
+        return cuttingRecipeSO;
       }
     }
     return null;
   }
 
-  private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO) {
-    foreach (var cuttingRecipeSO in cuttingRecipeSOArray) {
-      if (cuttingRecipeSO.input == inputKitchenObjectSO) {
-        return true;
-      }
+  /// gelen malzemenin kesilmiþ halini dön
+  private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO) {
+    var cuttingRecipeSO = GetCuttingRecipeSOWithInput(inputKitchenObjectSO);
+    if (cuttingRecipeSO == null) {
+      // gelen malzeme tarifte yok
+      return null;
     }
-    return false;
+
+    return cuttingRecipeSO.output;
+  }
+
+  /// gelen malzemenin tarifi var mý?
+  private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO) {
+    var cuttingRecipeSO = GetCuttingRecipeSOWithInput(inputKitchenObjectSO);
+    return cuttingRecipeSO != null;
   }
 }
