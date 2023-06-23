@@ -35,6 +35,7 @@ public class PlateIconsUI : MonoBehaviour {
     // tüm liste kadar icon spawn et her bir yeni malzeme geldiðinde
     foreach (KitchenObjectSO kitchenObjectSO in plateKitchenObject.GetKitchenObjectSOList()) {
       Transform iconTransform = Instantiate(iconTemplate, transform);
+      iconTransform.gameObject.SetActive(true);
 
       // iconTemplate'in sprite'ýný deðiþtir
       iconTransform.GetComponent<PlateIconSingleUI>().SetKitchenObjectSO(kitchenObjectSO);
