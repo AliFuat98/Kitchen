@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,6 +6,12 @@ public class DeliveryManager : MonoBehaviour {
 
   /// singleton
   public static DeliveryManager Instance { get; private set; }
+
+  /// yeni sipariþ geldiðinde çalýþacak event
+  public event EventHandler OnRecipeSpawned;
+
+  /// sipariþ tamamlanýnca çalýþacak event
+  public event EventHandler OnRecipeCompleted;
 
   /// spwan edilebilecek sipariþ listesi
   [SerializeField] private RecipeListSO recipeSOList;
@@ -24,6 +31,8 @@ public class DeliveryManager : MonoBehaviour {
     Instance = this;
 
     waitingRecipeSOList = new List<RecipeSO>();
+
+    spawnRecipeTimer = spawnRecipeTimerMax;
   }
 
   private void Update() {
@@ -38,12 +47,13 @@ public class DeliveryManager : MonoBehaviour {
         // yeni sipariþ için yer var
 
         // listeden rastgele bir sipariþ seç
-        RecipeSO waitingRecipeSO = recipeSOList.recipeSOList[Random.Range(0, recipeSOList.recipeSOList.Count)];
+        RecipeSO waitingRecipeSO = recipeSOList.recipeSOList[UnityEngine.Random.Range(0, recipeSOList.recipeSOList.Count)];
 
         // listeye ekle
         waitingRecipeSOList.Add(waitingRecipeSO);
 
-        Debug.Log(waitingRecipeSO.recipeName);
+        // event baþlat
+        OnRecipeSpawned?.Invoke(this, EventArgs.Empty);
       }
     }
   }
@@ -76,10 +86,12 @@ public class DeliveryManager : MonoBehaviour {
 
         if (recipeMatch) {
           // tabaktaki malzeme ile eþleþen bir sipariþ var => sipariþ doðru hazýrlanmýþ
-          Debug.Log("sipariþ doðru");
 
           // bekleyen sipariþ listesinden kaldýr
           waitingRecipeSOList.RemoveAt(i);
+
+          // tamamlama eventini baþlat
+          OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
 
           return;
         } else {
@@ -91,6 +103,9 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     // tabaktaki malzeme ile eþleþen bir sipariþ yok => sipariþ eksik hazýrlanmýþ
-    Debug.Log("sipariþ hatalý");
+  }
+
+  public List<RecipeSO> GetWaitingRecipeSOList() {
+    return waitingRecipeSOList;
   }
 }
