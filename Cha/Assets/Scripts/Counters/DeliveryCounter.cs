@@ -6,7 +6,10 @@ public class DeliveryCounter : BaseCounter {
       if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject)) {
         // oyuncunun elinde tabak var
 
-        // tabaðý yok et þimdilik
+        // sipariþi tamamla
+        DeliveryManager.Instance.DeliverRecipe(plateKitchenObject);
+
+        // tabaðý yok et
         player.GetKitchenObject().DestroyItelf();
       } else {
         // oyuncunun elinde tabak harici bir malzeme var
