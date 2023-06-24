@@ -30,6 +30,8 @@ public class DeliveryManager : MonoBehaviour {
 
   private int waitingRecipeMax = 4;
 
+  private int successfullDeliverAmount;
+
   private void Awake() {
     if (Instance != null) {
       Debug.Log("birden fazla delivery manager");
@@ -99,6 +101,7 @@ public class DeliveryManager : MonoBehaviour {
           // eventleri baþlat
           OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
           OnRecipeSuccess?.Invoke(this, EventArgs.Empty);
+          successfullDeliverAmount++;
 
           return;
         } else {
@@ -115,5 +118,9 @@ public class DeliveryManager : MonoBehaviour {
 
   public List<RecipeSO> GetWaitingRecipeSOList() {
     return waitingRecipeSOList;
+  }
+
+  public int GetSuccessfullDeliverAmount() {
+    return successfullDeliverAmount;
   }
 }
