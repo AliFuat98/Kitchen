@@ -6,6 +6,11 @@ public class CuttingCounter : BaseCounter, IHasProgress {
   /// ses için çalýþacak event
   public static event EventHandler OnAnyCut;
 
+  /// scene deðiþtiðinde temizlik yapýlmasý gerekiyor
+  public static new void ResetStaticData() {
+    OnAnyCut = null;
+  }
+
   /// progres deðiþtiðinde çalýþacak event
   public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
 

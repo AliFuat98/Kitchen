@@ -6,6 +6,10 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
   /// ses için event
   public static event EventHandler OnAnyObjectPlacedHere;
 
+  public static void ResetStaticData() {
+    OnAnyObjectPlacedHere = null;
+  }
+
   /// malzemeyi nerde spawn edicez = kutunun tepesi
   [SerializeField] private Transform counterTopPoint;
 
