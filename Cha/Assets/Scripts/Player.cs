@@ -19,6 +19,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
     public BaseCounter selectedCounter;
   }
 
+  /// ses için event
+  public event EventHandler OnPickedSomething;
+
   /// HIZ
   [SerializeField] private float moveSpeed = 7f;
 
@@ -176,6 +179,9 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
   /// oyuncunun üzerindeki malzemeyi deðiþtir
   public void SetKitchenObject(KitchenObject kitchenObject) {
     this.kitchenObject = kitchenObject;
+    if (kitchenObject != null) {
+      OnPickedSomething?.Invoke(this, EventArgs.Empty);
+    }
   }
 
   /// oyuncunun üzerindeki malzemeyi dön

@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class CuttingCounter : BaseCounter, IHasProgress {
 
+  /// ses için çalýþacak event
+  public static event EventHandler OnAnyCut;
+
   /// progres deðiþtiðinde çalýþacak event
   public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
 
@@ -90,6 +93,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
       });
 
       OnCut?.Invoke(this, EventArgs.Empty);
+      OnAnyCut?.Invoke(this, EventArgs.Empty);
 
       if (cuttingProgress >= cuttingRecipeSO.cuttingProgressMax) {
         // son kesme iþlemine geldik dönüþüm gerçekleþebilir

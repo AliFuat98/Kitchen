@@ -15,4 +15,4 @@ MonoBehaviour:
   KitchenObjectSOList:
   - {fileID: 11400000, guid: e336a21cbb860b749b9fa7b9731d7f24, type: 2}
   - {fileID: 11400000, guid: 5b4267d497530274397e08cb66bed1bb, type: 2}
-  recipeName: Cheese Burger
+  recipeName: Salad

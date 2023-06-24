@@ -13,6 +13,12 @@ public class DeliveryManager : MonoBehaviour {
   /// sipariþ tamamlanýnca çalýþacak event
   public event EventHandler OnRecipeCompleted;
 
+  /// sipariþ doðruysa çalýþacak event
+  public event EventHandler OnRecipeSuccess;
+
+  /// sipariþ yanluþ ise çalýþacak evet
+  public event EventHandler OnRecipeFailed;
+
   /// spwan edilebilecek sipariþ listesi
   [SerializeField] private RecipeListSO recipeSOList;
 
@@ -90,8 +96,9 @@ public class DeliveryManager : MonoBehaviour {
           // bekleyen sipariþ listesinden kaldýr
           waitingRecipeSOList.RemoveAt(i);
 
-          // tamamlama eventini baþlat
+          // eventleri baþlat
           OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
+          OnRecipeSuccess?.Invoke(this, EventArgs.Empty);
 
           return;
         } else {
@@ -102,7 +109,8 @@ public class DeliveryManager : MonoBehaviour {
       }
     }
 
-    // tabaktaki malzeme ile eþleþen bir sipariþ yok => sipariþ eksik hazýrlanmýþ
+    // tabaktaki malzeme ile eþleþen bir sipariþ yok => sipariþ yanlýþ hazýrlanmýþ
+    OnRecipeFailed?.Invoke(this, EventArgs.Empty);
   }
 
   public List<RecipeSO> GetWaitingRecipeSOList() {

@@ -1,6 +1,10 @@
+using System;
 using UnityEngine;
 
 public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
+
+  /// ses için event
+  public static event EventHandler OnAnyObjectPlacedHere;
 
   /// malzemeyi nerde spawn edicez = kutunun tepesi
   [SerializeField] private Transform counterTopPoint;
@@ -24,6 +28,9 @@ public class BaseCounter : MonoBehaviour, IKitchenObjectParent {
   /// kutunun üzerindeki malzemeyi deðiþtir
   public void SetKitchenObject(KitchenObject kitchenObject) {
     this.kitchenObject = kitchenObject;
+    if (kitchenObject != null) {
+      OnAnyObjectPlacedHere?.Invoke(this, EventArgs.Empty);
+    }
   }
 
   /// kutunun üzerindeki malzemeyi dön

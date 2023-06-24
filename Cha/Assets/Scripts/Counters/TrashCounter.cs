@@ -1,4 +1,9 @@
+using System;
+
 public class TrashCounter : BaseCounter {
+
+  /// ses için event
+  public static event EventHandler OnAnyObjectTrashed;
 
   public override void Interact(Player player) {
     if (player.HasKitchenObject()) {
@@ -6,6 +11,7 @@ public class TrashCounter : BaseCounter {
 
       // çöpe at
       player.GetKitchenObject().DestroyItelf();
+      OnAnyObjectTrashed?.Invoke(this, EventArgs.Empty);
     } else {
       // oyuncunun elinde malzeme yok
     }
