@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenuUI : MonoBehaviour {
@@ -8,7 +7,7 @@ public class MainMenuUI : MonoBehaviour {
 
   private void Awake() {
     playButton.onClick.AddListener(() => {
-      SceneManager.LoadScene(1);
+      Loader.Load(Loader.Scene.Game);
     });
 
     quitButton.onClick.AddListener(() => {
