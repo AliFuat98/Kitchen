@@ -38,6 +38,7 @@ public class GamePausedUI : MonoBehaviour {
 
   public void Show() {
     gameObject.SetActive(true);
+    ResumeButton.Select();
   }
 
   public void Hide() {
