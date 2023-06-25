@@ -2,15 +2,24 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GamePausedUI : MonoBehaviour {
+  public static GamePausedUI Instance { get; private set; }
+
   [SerializeField] private Button ResumeButton;
   [SerializeField] private Button MainMenuButton;
+  [SerializeField] private Button OptionsButton;
 
   private void Awake() {
+    Instance = this;
+
     ResumeButton.onClick.AddListener(() => {
       KitchenGameManager.Instance.TogglePauseGame();
     });
     MainMenuButton.onClick.AddListener(() => {
       Loader.Load(Loader.Scene.MainMenu);
+    });
+    OptionsButton.onClick.AddListener(() => {
+      Hide();
+      OptionsUI.Instance.Show();
     });
   }
 
@@ -27,11 +36,11 @@ public class GamePausedUI : MonoBehaviour {
     }
   }
 
-  private void Show() {
+  public void Show() {
     gameObject.SetActive(true);
   }
 
-  private void Hide() {
+  public void Hide() {
     gameObject.SetActive(false);
   }
 }
