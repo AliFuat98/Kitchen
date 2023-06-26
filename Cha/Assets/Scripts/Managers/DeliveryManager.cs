@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class DeliveryManager : MonoBehaviour {
+public class DeliveryManager : NetworkBehaviour {
 
   /// singleton
   public static DeliveryManager Instance { get; private set; }
@@ -25,7 +26,7 @@ public class DeliveryManager : MonoBehaviour {
   /// bekleyen sipariþler
   private List<RecipeSO> waitingRecipeSOList;
 
-  private float spawnRecipeTimer;
+  private float spawnRecipeTimer = 4;
   private float spawnRecipeTimerMax = 4f;
 
   private int waitingRecipeMax = 4;
@@ -44,6 +45,10 @@ public class DeliveryManager : MonoBehaviour {
   }
 
   private void Update() {
+    if (!IsServer) {
+      return;
+    }
+
     spawnRecipeTimer -= Time.deltaTime;
     if (spawnRecipeTimer < 0f) {
       // yeni bir sipariþ spawn vakti
@@ -54,16 +59,23 @@ public class DeliveryManager : MonoBehaviour {
       if (KitchenGameManager.Instance.IsGamePlaying() && waitingRecipeSOList.Count < waitingRecipeMax) {
         // yeni sipariþ için yer var
 
-        // listeden rastgele bir sipariþ seç
-        RecipeSO waitingRecipeSO = recipeSOList.recipeSOList[UnityEngine.Random.Range(0, recipeSOList.recipeSOList.Count)];
-
-        // listeye ekle
-        waitingRecipeSOList.Add(waitingRecipeSO);
-
-        // event baþlat
-        OnRecipeSpawned?.Invoke(this, EventArgs.Empty);
+        // tüm client'lerde yeni bir sipariþ oluþtur
+        SpawnNewWaitingRecipeClientRpc(UnityEngine.Random.Range(0, recipeSOList.recipeSOList.Count));
       }
     }
+  }
+
+  [ClientRpc]
+  private void SpawnNewWaitingRecipeClientRpc(int recipeSOListRandomIndex) {
+    // listeden rastgele bir sipariþ seç
+    // rastgele sayý server'dan gelicek
+    RecipeSO waitingRecipeSO = recipeSOList.recipeSOList[recipeSOListRandomIndex];
+
+    // listeye ekle
+    waitingRecipeSOList.Add(waitingRecipeSO);
+
+    // event baþlat
+    OnRecipeSpawned?.Invoke(this, EventArgs.Empty);
   }
 
   public void DeliverRecipe(PlateKitchenObject plateKitchenObject) {
@@ -95,13 +107,7 @@ public class DeliveryManager : MonoBehaviour {
         if (recipeMatch) {
           // tabaktaki malzeme ile eþleþen bir sipariþ var => sipariþ doðru hazýrlanmýþ
 
-          // bekleyen sipariþ listesinden kaldýr
-          waitingRecipeSOList.RemoveAt(i);
-
-          // eventleri baþlat
-          OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
-          OnRecipeSuccess?.Invoke(this, EventArgs.Empty);
-          successfullDeliverAmount++;
+          DeliverCorrectRecipeServerRpc(i);
 
           return;
         } else {
@@ -113,6 +119,32 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     // tabaktaki malzeme ile eþleþen bir sipariþ yok => sipariþ yanlýþ hazýrlanmýþ
+    DeliverInCorrectRecipeServerRpc();
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void DeliverCorrectRecipeServerRpc(int recipeIndex) {
+    DeliverCorrectRecipeClientRpc(recipeIndex);
+  }
+
+  [ClientRpc]
+  private void DeliverCorrectRecipeClientRpc(int recipeIndex) {
+    // bekleyen sipariþ listesinden kaldýr
+    waitingRecipeSOList.RemoveAt(recipeIndex);
+
+    // eventleri baþlat
+    OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
+    OnRecipeSuccess?.Invoke(this, EventArgs.Empty);
+    successfullDeliverAmount++;
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void DeliverInCorrectRecipeServerRpc() {
+    DeliverInCorrectRecipeClientRpc();
+  }
+
+  [ClientRpc]
+  private void DeliverInCorrectRecipeClientRpc() {
     OnRecipeFailed?.Invoke(this, EventArgs.Empty);
   }
 
