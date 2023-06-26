@@ -29,11 +29,7 @@ public class DeliveryResultUI : MonoBehaviour {
 
   private void DeliveryManager_OnRecipeFailed(object sender, System.EventArgs e) {
     gameObject.SetActive(true);
-    Debug.Log(failColor);
-    Debug.Log(backgroundImage.color);
     backgroundImage.color = failColor;
-    Debug.Log(failColor);
-    Debug.Log(backgroundImage.color);
     iconImage.sprite = failSprite;
     messageText.text = "DELIVERY\nFAILED";
     animator.SetTrigger(DELIVERY_POPUP);

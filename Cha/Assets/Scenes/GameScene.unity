@@ -1081,9 +1081,14 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 141497885}
-    PlayerPrefab: {fileID: 6559246005308346904, guid: 43b9ec93d41d5e14fbc9100f5e5903e0,
+    PlayerPrefab: {fileID: 6754642535268416681, guid: 43b9ec93d41d5e14fbc9100f5e5903e0,
       type: 3}
-    NetworkPrefabs: []
+    NetworkPrefabs:
+    - Override: 0
+      Prefab: {fileID: 0}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -12886,7 +12891,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 246ad681cffb6c34da00c71aea0c9cd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gamePlayingTimerMax: 180
+  gamePlayingTimerMax: 1800000
 --- !u!4 &1593503188
 Transform:
   m_ObjectHideFlags: 0
