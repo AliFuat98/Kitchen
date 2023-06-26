@@ -1,10 +1,11 @@
 using System;
 using UnityEngine;
+using Unity.Netcode;
 
-public class Player : MonoBehaviour, IKitchenObjectParent {
+public class Player : NetworkBehaviour, IKitchenObjectParent {
 
   /// Singleton pattern
-  public static Player Instance { get; private set; }
+  //public static Player Instance { get; private set; }
 
   /// <summary>
   /// oyuncu seçili kutuyu deðiþtirdiðinde çalýþacak
@@ -24,9 +25,6 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
 
   /// HIZ
   [SerializeField] private float moveSpeed = 7f;
-
-  /// NEW INPUT SYSTEM instance
-  [SerializeField] private GameInput gameInput;
 
   /// kutularý raycast ile hit yaparken maskeleme yapmak için
   [SerializeField] private LayerMask countersLayerMask;
@@ -52,23 +50,23 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
   /// </summary>
   private BaseCounter selectedCounter;
 
+  GameInput gameInputInstance;
+
   private void Awake() {
     // Singleton
-    if (Instance != null) {
-      Debug.LogError("there is more than one player");
-      return;
-    }
-    Instance = this;
+    //Instance = this;
   }
 
   private void Start() {
+    gameInputInstance = GameInput.Instance;
+
     // interaction tuþuna (E and F) tuþuna basýnca çalýþan event'e sub oluyoruz
 
     // E basýnca GameInput_OnInteratAction çalýþacak
-    gameInput.OnInteractAction += GameInput_OnInteratAction;
+    gameInputInstance.OnInteractAction += GameInput_OnInteratAction;
 
     // F basýnca GameInput_OnInteractAlternateAction çalýþacak
-    gameInput.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+    gameInputInstance.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
   }
 
   private void GameInput_OnInteractAlternateAction(object sender, EventArgs e) {
@@ -97,7 +95,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
   }
 
   private void handleInteractions() {
-    Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+    Vector2 inputVector = gameInputInstance.GetMovementVectorNormalized();
 
     Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
 
@@ -131,7 +129,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent {
   }
 
   private void handleMovement() {
-    Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+    Vector2 inputVector = gameInputInstance.GetMovementVectorNormalized();
 
     Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
 
