@@ -23,46 +23,46 @@ public class StoveCounter : BaseCounter, IHasProgress {
   [SerializeField] private FryingRecipeSO[] fryingRecipeSOArray;
   [SerializeField] private BurningRecipeSO[] BurningRecipeSOArray;
 
-  private State currentState;
+  private State xState;
 
   private State CurrentState {
-    get { return currentState; }
+    get { return xState; }
     set {
-      if (currentState != value) {
+      if (xState != value) {
         //eski veriden farklý bir veri geliyorsa yani state deðiþimi var
         OnStateChanged?.Invoke(this, new OnStateChangedEventArgs {
           state = value
         });
       }
-      currentState = value;
+      xState = value;
     }
   }
 
-  private float fryingTimer;
+  private float xFTimer;
 
   private float FryingTimer {
-    get { return fryingTimer; }
+    get { return xFTimer; }
     set {
-      if (fryingTimer != value) {
+      if (xFTimer != value) {
         OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
           progressNormalized = value / fryingRecipeSO.FryingTimerMax
         });
       }
-      fryingTimer = value;
+      xFTimer = value;
     }
   }
 
-  private float burningTimer;
+  private float xBTimer;
 
   private float BurningTimer {
-    get { return burningTimer; }
+    get { return xBTimer; }
     set {
-      if (burningTimer != value) {
+      if (xBTimer != value) {
         OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
           progressNormalized = value / burningRecipeSO.BurningTimerMax
         });
       }
-      burningTimer = value;
+      xBTimer = value;
     }
   }
 
@@ -111,8 +111,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
             KitchenObject.SpwanKitchenObject(burningRecipeSO.output, this);
 
             CurrentState = State.Burned;
-
-            burningTimer = 0f;
+            BurningTimer = 0f;
           }
           break;
 
@@ -145,7 +144,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
           CurrentState = State.Frying;
           // süreyi sýfýrla
           FryingTimer = 0f;
-          burningTimer = 0f;
+          BurningTimer = 0f;
         } else {
           // oyuncunun elinde kesilebilir bir malzeme yok
 
@@ -173,7 +172,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
 
             CurrentState = State.Idle;
             FryingTimer = 0f;
-            burningTimer = 0f;
+            BurningTimer = 0f;
           }
         } else {
           // oyuncu tabak hariç baþka bir þey taþýyor
@@ -188,9 +187,14 @@ public class StoveCounter : BaseCounter, IHasProgress {
 
         CurrentState = State.Idle;
         FryingTimer = 0f;
-        burningTimer = 0f;
+        BurningTimer = 0f;
       }
     }
+  }
+
+  /// ocaktaki et piþmiþ yanmaya doðru mu gidiyor
+  public bool IsFried() {
+    return CurrentState == State.Fried;
   }
 
   /// gelen malzemenin input olduðu tarifi ver

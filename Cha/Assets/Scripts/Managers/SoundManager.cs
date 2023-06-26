@@ -42,6 +42,14 @@ public class SoundManager : MonoBehaviour {
     PlaySound(audioClipRefsSO.footStep, posiiton, volume);
   }
 
+  public void PlayCountdownSound() {
+    PlaySound(audioClipRefsSO.warning, Vector3.zero);
+  }
+
+  public void PlayStoveWarningSound(Vector3 posiiton) {
+    PlaySound(audioClipRefsSO.warning, posiiton);
+  }
+
   private void TrashCounter_OnAnyObjectTrashed(object sender, System.EventArgs e) {
     PlaySound(audioClipRefsSO.trash, ((TrashCounter)sender).transform.position);
   }

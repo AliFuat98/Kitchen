@@ -30,7 +30,7 @@ public class PlatesCounter : BaseCounter {
       // süreyi sýfýrla
       spawnPlatesTimer = 0f;
 
-      if (platesSpawnedAmount < platesSpawnedAmountMax) {
+      if (KitchenGameManager.Instance.IsGamePlaying() && platesSpawnedAmount < platesSpawnedAmountMax) {
         // yeni tabak çýkabilecek kadar yer var
 
         // tabak görseli göster

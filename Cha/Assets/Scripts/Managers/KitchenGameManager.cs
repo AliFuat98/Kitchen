@@ -19,21 +19,20 @@ public class KitchenGameManager : MonoBehaviour {
     GameOver,
   }
 
-  private State currentState;
+  private State xState;
 
   private State CurrentState {
-    get { return currentState; }
+    get { return xState; }
     set {
-      if (currentState != value) {
-        currentState = value;
+      if (xState != value) {
+        xState = value;
         OnStateChanged?.Invoke(this, new EventArgs());
         return;
       }
-      currentState = value;
+      xState = value;
     }
   }
 
-  private float waitingToStartTimer = 1f;
   private float countdownToStartTimer = 3f;
   private float gamePlayingTimer;
   [SerializeField] private float gamePlayingTimerMax = 20f;
@@ -47,6 +46,13 @@ public class KitchenGameManager : MonoBehaviour {
 
   private void Start() {
     GameInput.Instance.OnPauseAction += GameInput_OnPauseAction;
+    GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
+  }
+
+  private void GameInput_OnInteractAction(object sender, EventArgs e) {
+    if (CurrentState == State.WaitingToStart) {
+      CurrentState = State.CountdownToStart;
+    }
   }
 
   private void GameInput_OnPauseAction(object sender, EventArgs e) {
@@ -56,10 +62,6 @@ public class KitchenGameManager : MonoBehaviour {
   private void Update() {
     switch (CurrentState) {
       case State.WaitingToStart:
-        waitingToStartTimer -= Time.deltaTime;
-        if (waitingToStartTimer < 0) {
-          CurrentState = State.CountdownToStart;
-        }
         break;
 
       case State.CountdownToStart:
@@ -103,7 +105,7 @@ public class KitchenGameManager : MonoBehaviour {
   }
 
   public bool IsCountDownToStartActive() {
-    return currentState == State.CountdownToStart;
+    return CurrentState == State.CountdownToStart;
   }
 
   public float GetCountDownToStartTimer() {
@@ -111,7 +113,7 @@ public class KitchenGameManager : MonoBehaviour {
   }
 
   public bool IsGameOver() {
-    return currentState == State.GameOver;
+    return CurrentState == State.GameOver;
   }
 
   public float GetGamePlayingTimerNormalized() {

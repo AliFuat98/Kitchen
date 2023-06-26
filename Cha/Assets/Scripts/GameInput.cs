@@ -13,6 +13,9 @@ public class GameInput : MonoBehaviour {
   /// interact (F) tuþu için event
   public event EventHandler OnInteractAlternateAction;
 
+  /// key binding deðiþtiðinde çalýþacak event
+  public event EventHandler OnBindingRebind;
+
   public enum Binding {
     Move_Up,
     Move_Down,
@@ -87,6 +90,8 @@ public class GameInput : MonoBehaviour {
   public void ResetBindings() {
     playerInputActions.RemoveAllBindingOverrides();
     PlayerPrefs.DeleteKey(PLAYER_PREFS_BINDINGS);
+
+    OnBindingRebind?.Invoke(this, EventArgs.Empty);
   }
 
   public string GetBindingText(Binding binding) {
@@ -194,6 +199,8 @@ public class GameInput : MonoBehaviour {
 
         PlayerPrefs.SetString(PLAYER_PREFS_BINDINGS, playerInputActions.SaveBindingOverridesAsJson());
         PlayerPrefs.Save();
+
+        OnBindingRebind?.Invoke(this, EventArgs.Empty);
       })
       .Start();
   }

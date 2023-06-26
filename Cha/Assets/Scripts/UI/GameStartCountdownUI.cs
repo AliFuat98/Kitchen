@@ -4,6 +4,8 @@ using UnityEngine;
 public class GameStartCountdownUI : MonoBehaviour {
   [SerializeField] private TextMeshProUGUI countdownText;
 
+  private int previousCountdown;
+
   private void Start() {
     KitchenGameManager.Instance.OnStateChanged += KitchenGameManager_OnStateChanged;
     Hide();
@@ -19,7 +21,13 @@ public class GameStartCountdownUI : MonoBehaviour {
 
   private void Update() {
     //countdownText.text = KitchenGameManager.Instance.GetCountDownToStartTimer().ToString("#.#");
-    countdownText.text = Mathf.Ceil(KitchenGameManager.Instance.GetCountDownToStartTimer()).ToString();
+    int countdown = Mathf.CeilToInt(KitchenGameManager.Instance.GetCountDownToStartTimer());
+    countdownText.text = countdown.ToString();
+
+    if (countdown != previousCountdown) {
+      previousCountdown = countdown;
+      SoundManager.Instance.PlayCountdownSound();
+    }
   }
 
   private void Show() {

@@ -51,7 +51,7 @@ public class DeliveryManager : MonoBehaviour {
       // süreyi baþa al
       spawnRecipeTimer = spawnRecipeTimerMax;
 
-      if (waitingRecipeSOList.Count < waitingRecipeMax) {
+      if (KitchenGameManager.Instance.IsGamePlaying() && waitingRecipeSOList.Count < waitingRecipeMax) {
         // yeni sipariþ için yer var
 
         // listeden rastgele bir sipariþ seç
