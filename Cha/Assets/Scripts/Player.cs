@@ -1,9 +1,8 @@
 using System;
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
 
 public class Player : NetworkBehaviour, IKitchenObjectParent {
-
   /// Singleton pattern
   //public static Player Instance { get; private set; }
 
@@ -90,6 +89,12 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
   }
 
   private void Update() {
+    if (!IsOwner) {
+      // script bize ait deðilse çýk buradan
+      return;
+    }
+
+    // sadece local player için çalýþacak kýsým
     handleMovement();
     handleInteractions();
   }
