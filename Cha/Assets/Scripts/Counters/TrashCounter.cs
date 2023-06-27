@@ -1,4 +1,5 @@
 using System;
+using Unity.Netcode;
 
 public class TrashCounter : BaseCounter {
 
@@ -14,10 +15,22 @@ public class TrashCounter : BaseCounter {
       // oyuncunun elinde malzeme var
 
       // çöpe at
-      player.GetKitchenObject().DestroyItelf();
-      OnAnyObjectTrashed?.Invoke(this, EventArgs.Empty);
+      KitchenObject.DestroyKitchenObject(player.GetKitchenObject());
+
+      InteractLogicServerRpc();
     } else {
       // oyuncunun elinde malzeme yok
     }
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void InteractLogicServerRpc() {
+    InteractLogicClientRpc();
+  }
+
+  [ClientRpc]
+  private void InteractLogicClientRpc() {
+    // ses için
+    OnAnyObjectTrashed?.Invoke(this, EventArgs.Empty);
   }
 }

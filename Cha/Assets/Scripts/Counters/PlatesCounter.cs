@@ -1,4 +1,5 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
 public class PlatesCounter : BaseCounter {
@@ -23,6 +24,9 @@ public class PlatesCounter : BaseCounter {
   private int platesSpawnedAmount;
 
   private void Update() {
+    if (!IsServer) {
+      return;
+    }
     spawnPlatesTimer += Time.deltaTime;
     if (spawnPlatesTimer >= spawnPlatesTimerMax) {
       // yeni tabak çýkmasý için süre geldi
@@ -34,12 +38,17 @@ public class PlatesCounter : BaseCounter {
         // yeni tabak çýkabilecek kadar yer var
 
         // tabak görseli göster
-        OnPlateSpawn?.Invoke(this, new OnPlateSpawnEventArgs {
-          platesSpawnedAmount = platesSpawnedAmount,
-        });
-        platesSpawnedAmount++;
+        SpawnPlateClientRpc();
       }
     }
+  }
+
+  [ClientRpc]
+  private void SpawnPlateClientRpc() {
+    OnPlateSpawn?.Invoke(this, new OnPlateSpawnEventArgs {
+      platesSpawnedAmount = platesSpawnedAmount,
+    });
+    platesSpawnedAmount++;
   }
 
   public override void Interact(Player player) {
@@ -53,15 +62,26 @@ public class PlatesCounter : BaseCounter {
         KitchenObject.SpwanKitchenObject(kitchenObjectSO, player);
 
         // bir adet tabak görselini sil
-        platesSpawnedAmount--;
-        OnPlateRemoved?.Invoke(this, new OnPlateSpawnEventArgs {
-          platesSpawnedAmount = platesSpawnedAmount
-        });
+        InteractLogicServerRpc();
       }
     } else {
       // oyuncunun eli dolu
 
       //---
     }
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void InteractLogicServerRpc() {
+    InteractLogicClientRpc();
+  }
+
+  [ClientRpc]
+  private void InteractLogicClientRpc() {
+    // bir adet tabak görselini sil
+    platesSpawnedAmount--;
+    OnPlateRemoved?.Invoke(this, new OnPlateSpawnEventArgs {
+      platesSpawnedAmount = platesSpawnedAmount
+    });
   }
 }

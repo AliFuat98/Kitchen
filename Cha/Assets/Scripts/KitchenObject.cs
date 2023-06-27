@@ -55,11 +55,13 @@ public class KitchenObject : NetworkBehaviour {
   }
 
   public void DestroyItelf() {
-    // parent'ý temizle
-    kitchenObjectParent.ClearKitchenObject();
-
     // kendini yok et
     Destroy(gameObject);
+  }
+
+  public void ClearKitchenObjectOnParent() {
+    // parent'ý temizle
+    kitchenObjectParent.ClearKitchenObject();
   }
 
   public KitchenObjectSO GetKitchenObjectSO() {
@@ -81,5 +83,9 @@ public class KitchenObject : NetworkBehaviour {
   /// kendi kendini swpan et
   public static void SpwanKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent) {
     KitchenGameMultiplayer.Instance.SpwanKitchenObject(kitchenObjectSO, kitchenObjectParent);
+  }
+
+  public static void DestroyKitchenObject(KitchenObject kitchenObject) {
+    KitchenGameMultiplayer.Instance.DestroyKitchenObject(kitchenObject);
   }
 }

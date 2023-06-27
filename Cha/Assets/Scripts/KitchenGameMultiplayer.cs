@@ -10,6 +10,7 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
     Instance = this;
   }
 
+  /// ----------------------------------SPAWN------------------------------------
   public void SpwanKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent) {
     SpwanKitchenObjectServerRpc(GetKitchenObjectSOIndex(kitchenObjectSO), kitchenObjectParent.GetNetworkObject());
   }
@@ -38,5 +39,33 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
 
   private KitchenObjectSO GetKitchenObjectSOFromIndex(int kitchenObjectSOIndex) {
     return KitchenObjectSOList.kitchenObjectSOList[kitchenObjectSOIndex];
+  }
+
+  /// ----------------------------------DESTROY------------------------------------
+
+  public void DestroyKitchenObject(KitchenObject kitchenObject) {
+    DestroyKitchenObjectServerRpc(kitchenObject.NetworkObject);
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void DestroyKitchenObjectServerRpc(NetworkObjectReference kitchenObjectNetworkObjectReference) {
+    // malzemeyi çek
+    kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject);
+    KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
+
+    // parent'ý temizle
+    ClearKitchenObjectOnParentClientRpc(kitchenObjectNetworkObjectReference);
+
+    // malzemeyi sil
+    kitchenObject.DestroyItelf();
+  }
+
+  [ClientRpc]
+  private void ClearKitchenObjectOnParentClientRpc(NetworkObjectReference kitchenObjectNetworkObjectReference) {
+    // malzemeyi çek
+    kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject);
+    KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
+
+    kitchenObject.ClearKitchenObjectOnParent();
   }
 }
