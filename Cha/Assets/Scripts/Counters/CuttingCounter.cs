@@ -1,4 +1,5 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
 public class CuttingCounter : BaseCounter, IHasProgress {
@@ -33,17 +34,10 @@ public class CuttingCounter : BaseCounter, IHasProgress {
           // oyuncunun elinde kesilebilir bir malzeme var
 
           // malzemeyi kutunun üzerine býrak
-          player.GetKitchenObject().SetKitchenObjectParent(this);
+          KitchenObject kitchenObject = player.GetKitchenObject();
+          kitchenObject.SetKitchenObjectParent(this);
 
-          // kesme iþlemi süreç baþlat
-          cuttingProgress = 0;
-
-          // normalized veri için max deðer lazým tarifin içinde bu
-          var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
-
-          OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
-            progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax,
-          });
+          InteractLogicPlaceObjectOnCounterServerRpc();
         } else {
           // oyuncunun elinde kesilebilir bir malzeme yok
 
@@ -67,7 +61,7 @@ public class CuttingCounter : BaseCounter, IHasProgress {
             // kutunun üzerindeki malzeme tabaða eklenebilir. => eklendi
 
             // kutunun üzerindekini yok et
-            GetKitchenObject().DestroyItelf();
+            KitchenObject.DestroyKitchenObject(GetKitchenObject());
           }
         } else {
           // oyuncu tabak hariç baþka bir þey taþýyor
@@ -79,8 +73,24 @@ public class CuttingCounter : BaseCounter, IHasProgress {
 
         // kutunun üzerindeki malzemeyi oyuncuya ver
         GetKitchenObject().SetKitchenObjectParent(player);
+        InteractLogicPlaceObjectOnCounterServerRpc();
       }
     }
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void InteractLogicPlaceObjectOnCounterServerRpc() {
+    InteractLogicPlaceObjectOnCounterClientRpc();
+  }
+
+  [ClientRpc]
+  private void InteractLogicPlaceObjectOnCounterClientRpc() {
+    // kesme iþlemi süreç baþlat
+    cuttingProgress = 0;
+
+    OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
+      progressNormalized = 0f
+    });
   }
 
   /// F tuþuna basýlýnca çalýþýr kesim
@@ -88,32 +98,48 @@ public class CuttingCounter : BaseCounter, IHasProgress {
     if (HasKitchenObject() && HasRecipeWithInput(GetKitchenObject().GetKitchenObjectSO())) {
       // kesilmesi gereken malzeme var  &&  malzeme için tarif var kesilebilir
 
-      // bir adet kesme iþlemi ekle
-      cuttingProgress++;
-
-      var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
-
-      OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
-        progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax,
-      });
-
-      OnCut?.Invoke(this, EventArgs.Empty);
-      OnAnyCut?.Invoke(this, EventArgs.Empty);
-
-      if (cuttingProgress >= cuttingRecipeSO.cuttingProgressMax) {
-        // son kesme iþlemine geldik dönüþüm gerçekleþebilir
-
-        // kesildikten sonra neye dönüþecek BUL
-        var outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
-
-        // öncekini sil
-        GetKitchenObject().DestroyItelf();
-
-        // yenisini spwan et
-        KitchenObject.SpwanKitchenObject(outputKitchenObjectSO, this);
-      }
+      CutObjectServerRpc();
+      TestCuttingProgressDoneServerRpc();
     } else {
       // kutunun üzeri boþ
+    }
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void CutObjectServerRpc() {
+    CutObjectClientRpc();
+  }
+
+  [ClientRpc]
+  private void CutObjectClientRpc() {
+    // bir adet kesme iþlemi ekle
+    cuttingProgress++;
+
+    var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+
+    OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs {
+      progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax,
+    });
+
+    OnCut?.Invoke(this, EventArgs.Empty);
+    OnAnyCut?.Invoke(this, EventArgs.Empty);
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void TestCuttingProgressDoneServerRpc() {
+    var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+
+    if (cuttingProgress >= cuttingRecipeSO.cuttingProgressMax) {
+      // son kesme iþlemine geldik dönüþüm gerçekleþebilir
+
+      // kesildikten sonra neye dönüþecek BUL
+      var outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
+
+      // öncekini sil
+      KitchenObject.DestroyKitchenObject(GetKitchenObject());
+
+      // yenisini spwan et
+      KitchenObject.SpwanKitchenObject(outputKitchenObjectSO, this);
     }
   }
 
