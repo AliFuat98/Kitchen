@@ -3,8 +3,23 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class Player : NetworkBehaviour, IKitchenObjectParent {
+
   /// Singleton pattern
-  //public static Player Instance { get; private set; }
+  public static Player LocalInstance { get; private set; }
+
+  /// <summary>
+  /// bir oyuncu sahnede spawn olduðunda çalýþacak event
+  /// static yapmamýzýn sebebide eventin class'ýn kendine ait olmasý
+  /// spesifik bir player'a deðil
+  /// </summary>
+  public static event EventHandler OnAnyPlayerSpawned;
+
+  public static event EventHandler OnAnyPickSomething;
+
+  public static void ResetStaticData() {
+    OnAnyPlayerSpawned = null;
+    OnAnyPickSomething = null;
+  }
 
   /// <summary>
   /// oyuncu seçili kutuyu deðiþtirdiðinde çalýþacak
@@ -51,9 +66,14 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
 
   GameInput gameInputInstance;
 
-  private void Awake() {
-    // Singleton
-    //Instance = this;
+  public override void OnNetworkSpawn() {
+    if (IsOwner) {
+      // þuan local player'dayýz
+
+      LocalInstance = this;
+    }
+
+    OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
   }
 
   private void Start() {
@@ -194,6 +214,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
     this.kitchenObject = kitchenObject;
     if (kitchenObject != null) {
       OnPickedSomething?.Invoke(this, EventArgs.Empty);
+      OnAnyPickSomething?.Invoke(this, EventArgs.Empty);
     }
   }
 

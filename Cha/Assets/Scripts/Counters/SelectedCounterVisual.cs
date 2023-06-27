@@ -15,7 +15,23 @@ public class SelectedCounterVisual : MonoBehaviour {
   [SerializeField] private GameObject[] visualGameObjectArray;
 
   private void Start() {
-    //Player.Instance.OnSelectedCounterChanged += Player_OnSelectedCounterChanged;
+    if (Player.LocalInstance != null) {
+      // instance varsa direk event'e subscribe ol
+      Player.LocalInstance.OnSelectedCounterChanged += Player_OnSelectedCounterChanged;
+    } else {
+      // instance daha oluþmadýysa
+
+      Player.OnAnyPlayerSpawned += Player_OnAnyPlayerSpawned;
+    }
+  }
+
+  private void Player_OnAnyPlayerSpawned(object sender, System.EventArgs e) {
+    if (Player.LocalInstance != null) {
+      // bu event birden fazla kez çalýþtýðý için bir sürü subscription'ýmýz olmamasý için
+      // bir ade çýkar tak yapýyoruz burda
+      Player.LocalInstance.OnSelectedCounterChanged -= Player_OnSelectedCounterChanged;
+      Player.LocalInstance.OnSelectedCounterChanged += Player_OnSelectedCounterChanged;
+    }
   }
 
   private void Player_OnSelectedCounterChanged(object sender, Player.OnSelectedCounterChangedEventArgs e) {
