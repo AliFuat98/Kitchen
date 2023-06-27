@@ -32,7 +32,7 @@ public class ClearCounter : BaseCounter {
             // kutunun üzerindeki malzeme tabaða eklenebilir. => eklendi
 
             // kutunun üzerindekini yok et
-            GetKitchenObject().DestroyItelf();
+            KitchenObject.DestroyKitchenObject(GetKitchenObject());
           }
         } else {
           // oyuncu tabak hariç baþka bir þey taþýyor
@@ -44,7 +44,7 @@ public class ClearCounter : BaseCounter {
               // oyuncunun elindeki malzeme tabaða eklenebilir. => eklendi
 
               // oyuncunun elineki malzemeyi yok et
-              player.GetKitchenObject().DestroyItelf();
+              KitchenObject.DestroyKitchenObject(player.GetKitchenObject());
             } else {
               // oyuncunun elindeki malzeme tabaða eklenmez.
 

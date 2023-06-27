@@ -199,7 +199,7 @@ public class StoveCounter : BaseCounter, IHasProgress {
             // kutunun üzerindeki malzeme tabaða eklenebilir. => eklendi
 
             // kutunun üzerindekini yok et
-            GetKitchenObject().DestroyItelf();
+            KitchenObject.DestroyKitchenObject(GetKitchenObject());
 
             SetStateIdleServerRpc();
           }
