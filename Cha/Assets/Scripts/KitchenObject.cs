@@ -1,6 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class KitchenObject : MonoBehaviour {
+public class KitchenObject : NetworkBehaviour {
 
   /// malzemenin projede sabit duran SO'su
   [SerializeField] private KitchenObjectSO kitchenObjectSO;
@@ -8,18 +9,31 @@ public class KitchenObject : MonoBehaviour {
   /// üzerinde bulunduðumuz Parent (player yada kutu)
   private IKitchenObjectParent kitchenObjectParent;
 
-  public KitchenObjectSO GetKitchenObjectSO() {
-    return kitchenObjectSO;
+  /// takip edeceðimiz transform için script
+  private FollowTransform followTransform;
+
+  protected virtual void Awake() {
+    followTransform = GetComponent<FollowTransform>();
   }
 
   /// baþka Parent'a ýþýnlanma
   public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent) {
-    if (this.kitchenObjectParent != null) {
-      // bir Parent'ýn üzerindeyiz
+    SetKitchenObjectParentServerRpc(kitchenObjectParent.GetNetworkObject());
+  }
 
-      // üzerinde bulunduðumuz eski Parent'ý temizle
-      this.kitchenObjectParent.ClearKitchenObject();
-    }
+  [ServerRpc(RequireOwnership = false)]
+  public void SetKitchenObjectParentServerRpc(NetworkObjectReference kitchenObjectParentNetworkObjectReference) {
+    SetKitchenObjectParentClientRpc(kitchenObjectParentNetworkObjectReference);
+  }
+
+  [ClientRpc]
+  private void SetKitchenObjectParentClientRpc(NetworkObjectReference kitchenObjectParentNetworkObjectReference) {
+    // parent'ý çek
+    kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
+    IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
+
+    // üzerinde bulunduðumuz eski Parent'ý temizle
+    this.kitchenObjectParent?.ClearKitchenObject();
 
     // yeni Parent'ýmýzý iþaretle
     this.kitchenObjectParent = kitchenObjectParent;
@@ -31,9 +45,8 @@ public class KitchenObject : MonoBehaviour {
     }
     kitchenObjectParent.SetKitchenObject(this);
 
-    // kendini yeni gelen Parent'a ýþýnla
-    transform.parent = kitchenObjectParent.GetKitchenObjectFollowTransform();
-    transform.localPosition = Vector3.zero;
+    // bir objeyi takip etmeye baþla
+    followTransform.SetTargetTransform(kitchenObjectParent.GetKitchenObjectFollowTransform());
   }
 
   /// üzerinde olduðumuz Parent'ý dön
@@ -49,6 +62,10 @@ public class KitchenObject : MonoBehaviour {
     Destroy(gameObject);
   }
 
+  public KitchenObjectSO GetKitchenObjectSO() {
+    return kitchenObjectSO;
+  }
+
   public bool TryGetPlate(out PlateKitchenObject plateKitchenObject) {
     if (this is PlateKitchenObject) {
       // malzeme tabak
@@ -62,16 +79,7 @@ public class KitchenObject : MonoBehaviour {
   }
 
   /// kendi kendini swpan et
-  public static KitchenObject SpwanKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent) {
-    // malzemeyi spwan et
-    Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab);
-
-    // malzemeyi çek
-    var kitchenObject = kitchenObjectTransform.GetComponent<KitchenObject>();
-
-    // parent'ýný ayarla
-    kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
-
-    return kitchenObject;
+  public static void SpwanKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent) {
+    KitchenGameMultiplayer.Instance.SpwanKitchenObject(kitchenObjectSO, kitchenObjectParent);
   }
 }

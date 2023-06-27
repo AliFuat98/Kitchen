@@ -1,4 +1,5 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ContainerCounter : BaseCounter {
@@ -16,7 +17,18 @@ public class ContainerCounter : BaseCounter {
       // yeni malzemeyi oyuncunun elinde spwan et
       KitchenObject.SpwanKitchenObject(kitchenObjectSO, player);
 
-      OnPlayerGrabbedObject?.Invoke(this, EventArgs.Empty);
+      // onPlayerGrabedObject animasyonun tüm client'lerde gözükmesi için
+      InteractLogicServerRpc();
     }
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void InteractLogicServerRpc() {
+    InteractLogicClientRpc();
+  }
+
+  [ClientRpc]
+  private void InteractLogicClientRpc() {
+    OnPlayerGrabbedObject?.Invoke(this, EventArgs.Empty);
   }
 }

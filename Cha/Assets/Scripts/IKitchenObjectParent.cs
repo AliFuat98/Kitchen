@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public interface IKitchenObjectParent {
@@ -16,4 +17,7 @@ public interface IKitchenObjectParent {
 
   /// parent'ın üzerinde bir malzeme var mı?
   public bool HasKitchenObject();
+
+  /// serverRpc de parametre olarak gönderebilmek için
+  public NetworkObject GetNetworkObject();
 }
