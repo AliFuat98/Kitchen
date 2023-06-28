@@ -53,6 +53,8 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
   /// oyuncularýn spwan olucaklarý noktalar
   [SerializeField] private List<Vector3> spawnPositionList;
 
+  [SerializeField] private PlayerVisual playerVisual;
+
   /// oyuncunun üzerindeki malzeme
   private KitchenObject kitchenObject;
 
@@ -79,7 +81,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
 
       LocalInstance = this;
     }
-    transform.position = spawnPositionList[(int)OwnerClientId];
+    transform.position = spawnPositionList[KitchenGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
     OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
 
     if (IsServer) {
@@ -106,6 +108,9 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
 
     // F basýnca GameInput_OnInteractAlternateAction çalýþacak
     gameInputInstance.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+
+    PlayerData playerData = KitchenGameMultiplayer.Instance.GetPlayerDataFromClientId(OwnerClientId);
+    playerVisual.SetPlayerColor(KitchenGameMultiplayer.Instance.GetPlayerColor(playerData.colorId));
   }
 
   private void GameInput_OnInteractAlternateAction(object sender, EventArgs e) {
@@ -180,7 +185,6 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
 
     float moveDistance = Time.deltaTime * moveSpeed;
     float playerRadius = .6f;
-    float playerHeight = 2f;
     var canMove = !Physics.BoxCast(transform.position, Vector3.one * playerRadius, moveDir, Quaternion.identity, moveDistance, collisionsLayerMask);
 
     // X veya Z de engel Var
