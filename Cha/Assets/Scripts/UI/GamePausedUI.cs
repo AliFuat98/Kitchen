@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,7 @@ public class GamePausedUI : MonoBehaviour {
       KitchenGameManager.Instance.TogglePauseGame();
     });
     MainMenuButton.onClick.AddListener(() => {
+      NetworkManager.Singleton.Shutdown();
       Loader.Load(Loader.Scene.MainMenu);
     });
     OptionsButton.onClick.AddListener(() => {

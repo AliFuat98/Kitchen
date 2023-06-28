@@ -131,7 +131,7 @@ public class KitchenGameManager : NetworkBehaviour {
       Time.timeScale = 1f;
     } else {
       // oyun devam ediyor => durdur
-      Time.timeScale = 0f;
+      //Time.timeScale = 0f;
     }
 
     isGamePaused = !isGamePaused;
@@ -159,6 +159,10 @@ public class KitchenGameManager : NetworkBehaviour {
 
   public bool IsGameOver() {
     return CurrentState == State.GameOver;
+  }
+
+  public bool IsWaitingToStart() {
+    return CurrentState == State.WaitingToStart;
   }
 
   public float GetGamePlayingTimerNormalized() {
