@@ -1,11 +1,14 @@
+using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
 public static class Loader {
 
   public enum Scene {
-    MainMenu,
-    Game,
-    Loading,
+    MainMenuScene,
+    GameScene,
+    LoadingScene,
+    LobbyScene,
+    CharacterSelectScene
   }
 
   private static Scene targetScene;
@@ -13,10 +16,14 @@ public static class Loader {
   public static void Load(Scene targetScene) {
     Loader.targetScene = targetScene;
 
-    SceneManager.LoadScene($"{Scene.Loading}Scene");
+    SceneManager.LoadScene($"{Scene.LoadingScene}");
   }
 
   public static void LoaderCallBack() {
-    SceneManager.LoadScene($"{targetScene}Scene");
+    SceneManager.LoadScene($"{targetScene}");
+  }
+
+  public static void LoadNetwork(Scene targetScene) {
+    NetworkManager.Singleton.SceneManager.LoadScene($"{targetScene}", LoadSceneMode.Single);
   }
 }

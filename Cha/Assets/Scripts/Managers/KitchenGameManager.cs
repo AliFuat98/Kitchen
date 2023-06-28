@@ -23,6 +23,8 @@ public class KitchenGameManager : NetworkBehaviour {
     GameOver,
   }
 
+  [SerializeField] private Transform playerPrefab;
+
   private Dictionary<ulong, bool> playerReadyDictionary;
 
   private NetworkVariable<State> xCurrentState = new(State.WaitingToStart);
@@ -49,6 +51,18 @@ public class KitchenGameManager : NetworkBehaviour {
 
   public override void OnNetworkSpawn() {
     xCurrentState.OnValueChanged += CurrentState_OnValueChanged;
+
+    if (IsServer) {
+      NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
+    }
+  }
+
+  private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut) {
+    // tüm oyuncularý oluþtur
+    foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds) {
+      Transform playerTransform = Instantiate(playerPrefab);
+      playerTransform.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+    }
   }
 
   private void CurrentState_OnValueChanged(State previousState, State nextState) {

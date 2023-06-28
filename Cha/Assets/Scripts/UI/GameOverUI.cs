@@ -13,7 +13,7 @@ public class GameOverUI : MonoBehaviour {
 
     playAgainButton.onClick.AddListener(() => {
       NetworkManager.Singleton.Shutdown();
-      Loader.Load(Loader.Scene.MainMenu);
+      Loader.Load(Loader.Scene.MainMenuScene);
     });
   }
 
