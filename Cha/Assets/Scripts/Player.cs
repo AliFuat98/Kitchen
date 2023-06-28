@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -43,8 +44,14 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
   /// kutularý raycast ile hit yaparken maskeleme yapmak için
   [SerializeField] private LayerMask countersLayerMask;
 
+  /// çarpýþmalar için maske
+  [SerializeField] private LayerMask collisionsLayerMask;
+
   /// malzemeyi nerde spawn edicez = oyuncunun malzemeyi tutma noktasý
   [SerializeField] private Transform kitchenObjectHoldPoint;
+
+  /// oyuncularýn spwan olucaklarý noktalar
+  [SerializeField] private List<Vector3> spawnPositionList;
 
   /// oyuncunun üzerindeki malzeme
   private KitchenObject kitchenObject;
@@ -72,7 +79,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
 
       LocalInstance = this;
     }
-
+    transform.position = spawnPositionList[(int)OwnerClientId];
     OnAnyPlayerSpawned?.Invoke(this, EventArgs.Empty);
   }
 
@@ -161,13 +168,13 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
     float moveDistance = Time.deltaTime * moveSpeed;
     float playerRadius = .6f;
     float playerHeight = 2f;
-    var canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDir, moveDistance);
+    var canMove = !Physics.BoxCast(transform.position, Vector3.one * playerRadius, moveDir, Quaternion.identity, moveDistance, collisionsLayerMask);
 
     // X veya Z de engel Var
     if (!canMove) {
       Vector3 moveDirX = new Vector3(moveDir.x, 0f, 0f).normalized;
       canMove = (moveDir.x < -.5f || moveDir.x > .5f) &&
-        !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
+        !Physics.BoxCast(transform.position, Vector3.one * playerRadius, moveDirX, Quaternion.identity, moveDistance, collisionsLayerMask);
 
       // X eksenin de engel yok Z ekseninde Var
       if (canMove) {
@@ -177,7 +184,7 @@ public class Player : NetworkBehaviour, IKitchenObjectParent {
       } else {
         Vector3 moveDirZ = new Vector3(0f, 0f, moveDir.z).normalized;
         canMove = (moveDir.z < -.5f || moveDir.z > .5f) &&
-          !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
+          !Physics.BoxCast(transform.position, Vector3.one * playerRadius, moveDirZ, Quaternion.identity, moveDistance, collisionsLayerMask);
 
         // X engel var Z yok
         if (canMove) {
