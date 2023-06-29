@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class KitchenGameMultiplayer : NetworkBehaviour {
   public const int MAX_PLAYER_AMOUNT = 4;
+
+  private const string PLAYER_PREFS_PLAYER_NAME_MULTIPLAYER = "playerNameMultiplayer";
   public static KitchenGameMultiplayer Instance { get; private set; }
 
   [SerializeField] private KitchenObjectSOList KitchenObjectSOList;
@@ -19,10 +22,14 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
 
   private NetworkList<PlayerData> playerDataNetworkList;
 
+  private string playerName;
+
   private void Awake() {
     Instance = this;
 
     DontDestroyOnLoad(gameObject);
+
+    playerName = PlayerPrefs.GetString(PLAYER_PREFS_PLAYER_NAME_MULTIPLAYER, $"PlayerName{UnityEngine.Random.Range(100, 1000)}");
 
     playerDataNetworkList = new NetworkList<PlayerData>();
     playerDataNetworkList.OnListChanged += PlayerDataNetworkList_OnListChanged;
@@ -37,7 +44,7 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
   public void StartHost() {
     NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallback;
 
-    NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
+    NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Server_OnClientConnectedCallback;
 
     NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Server__OnClientDisconnectCallback;
 
@@ -55,11 +62,14 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
     }
   }
 
-  private void NetworkManager_OnClientConnectedCallback(ulong clientId) {
+  private void NetworkManager_Server_OnClientConnectedCallback(ulong clientId) {
     playerDataNetworkList.Add(new() {
       clientId = clientId,
       colorId = GetFirstUnusedColorId(),
     });
+
+    SetPlayerNameServerRpc(GetPlayerName());
+    SetPlayerIdServerRpc(AuthenticationService.Instance.PlayerId);
   }
 
   public override void OnNetworkDespawn() {
@@ -89,12 +99,41 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
     OnTryingToJoinGame?.Invoke(this, EventArgs.Empty);
 
     NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Client_OnClientDisconnectCallback;
+    NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Client_OnClientConnectedCallback;
+
     NetworkManager.Singleton.StartClient();
   }
 
   private void NetworkManager_Client_OnClientDisconnectCallback(ulong clientId) {
     OnFailedToJoinGame?.Invoke(this, EventArgs.Empty);
   }
+
+  private void NetworkManager_Client_OnClientConnectedCallback(ulong clientId) {
+    SetPlayerNameServerRpc(GetPlayerName());
+    SetPlayerIdServerRpc(AuthenticationService.Instance.PlayerId);
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void SetPlayerNameServerRpc(string playerName, ServerRpcParams serverRpcParams = default) {
+    int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+
+    PlayerData playerData = playerDataNetworkList[playerDataIndex];
+    playerData.playerName = playerName;
+
+    playerDataNetworkList[playerDataIndex] = playerData;
+  }
+
+  [ServerRpc(RequireOwnership = false)]
+  private void SetPlayerIdServerRpc(string playerId, ServerRpcParams serverRpcParams = default) {
+    int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+
+    PlayerData playerData = playerDataNetworkList[playerDataIndex];
+    playerData.playerId = playerId;
+
+    playerDataNetworkList[playerDataIndex] = playerData;
+  }
+
+  #region spawn
 
   /// ----------------------------------SPAWN------------------------------------
   public void SpwanKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent) {
@@ -127,6 +166,10 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
     return KitchenObjectSOList.kitchenObjectSOList[kitchenObjectSOIndex];
   }
 
+  #endregion spawn
+
+  #region DESTROY
+
   /// ----------------------------------DESTROY------------------------------------
 
   public void DestroyKitchenObject(KitchenObject kitchenObject) {
@@ -154,6 +197,8 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
 
     kitchenObject.ClearKitchenObjectOnParent();
   }
+
+  #endregion DESTROY
 
   /// ------------------------------------------ HELPER -------------------------------------
 
@@ -232,5 +277,15 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
   public void KickPlayer(ulong clientId) {
     NetworkManager.Singleton.DisconnectClient(clientId);
     NetworkManager_Server__OnClientDisconnectCallback(clientId);
+  }
+
+  public string GetPlayerName() {
+    return playerName;
+  }
+
+  public void SetPlayerName(string playerName) {
+    this.playerName = playerName;
+
+    PlayerPrefs.SetString(PLAYER_PREFS_PLAYER_NAME_MULTIPLAYER, playerName);
   }
 }
