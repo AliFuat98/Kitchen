@@ -180,6 +180,12 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
   private void DestroyKitchenObjectServerRpc(NetworkObjectReference kitchenObjectNetworkObjectReference) {
     // malzemeyi çek
     kitchenObjectNetworkObjectReference.TryGet(out NetworkObject kitchenObjectNetworkObject);
+
+    if (kitchenObjectNetworkObject == null) {
+      // zaten yok edilmiþ
+      return;
+    }
+
     KitchenObject kitchenObject = kitchenObjectNetworkObject.GetComponent<KitchenObject>();
 
     // parent'ý temizle

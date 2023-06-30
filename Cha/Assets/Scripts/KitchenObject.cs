@@ -32,6 +32,11 @@ public class KitchenObject : NetworkBehaviour {
     kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
     IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
 
+    if (kitchenObjectParent.HasKitchenObject()) {
+      // parent zaten var
+      return;
+    }
+
     // üzerinde bulunduðumuz eski Parent'ý temizle
     this.kitchenObjectParent?.ClearKitchenObject();
 

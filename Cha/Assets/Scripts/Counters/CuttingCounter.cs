@@ -107,7 +107,10 @@ public class CuttingCounter : BaseCounter, IHasProgress {
 
   [ServerRpc(RequireOwnership = false)]
   private void CutObjectServerRpc() {
-    CutObjectClientRpc();
+    if (HasKitchenObject() && HasRecipeWithInput(GetKitchenObject().GetKitchenObjectSO())) {
+      // kesilmesi gereken malzeme var  &&  malzeme için tarif var kesilebilir
+      CutObjectClientRpc();
+    }
   }
 
   [ClientRpc]
@@ -127,19 +130,22 @@ public class CuttingCounter : BaseCounter, IHasProgress {
 
   [ServerRpc(RequireOwnership = false)]
   private void TestCuttingProgressDoneServerRpc() {
-    var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+    if (HasKitchenObject() && HasRecipeWithInput(GetKitchenObject().GetKitchenObjectSO())) {
+      // kesilmesi gereken malzeme var  &&  malzeme için tarif var kesilebilir
+      var cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
 
-    if (cuttingProgress >= cuttingRecipeSO.cuttingProgressMax) {
-      // son kesme iþlemine geldik dönüþüm gerçekleþebilir
+      if (cuttingProgress >= cuttingRecipeSO.cuttingProgressMax) {
+        // son kesme iþlemine geldik dönüþüm gerçekleþebilir
 
-      // kesildikten sonra neye dönüþecek BUL
-      var outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
+        // kesildikten sonra neye dönüþecek BUL
+        var outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
 
-      // öncekini sil
-      KitchenObject.DestroyKitchenObject(GetKitchenObject());
+        // öncekini sil
+        KitchenObject.DestroyKitchenObject(GetKitchenObject());
 
-      // yenisini spwan et
-      KitchenObject.SpwanKitchenObject(outputKitchenObjectSO, this);
+        // yenisini spwan et
+        KitchenObject.SpwanKitchenObject(outputKitchenObjectSO, this);
+      }
     }
   }
 

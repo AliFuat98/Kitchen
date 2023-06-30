@@ -24,6 +24,17 @@ public class LobbyMessageUI : MonoBehaviour {
     Hide();
   }
 
+  private void OnDestroy() {
+    KitchenGameMultiplayer.Instance.OnFailedToJoinGame -= KitchenGameMultiplayer_OnFailedToJoinGame;
+    KitchenGameMultiplayer.Instance.OnFailedToJoinGame -= KitchenGameMultiplayer_OnFailedToJoinGame;
+    KitchenGameLobby.Instance.OnCreateLobbyFailedStarted -= KitchenGameLobby_OnCreateLobbyFailedStarted;
+    KitchenGameLobby.Instance.OnCreateLobbyStarted -= KitchenGameLobby_OnCreateLobbyStarted;
+
+    KitchenGameLobby.Instance.OnJoinStarted -= KitchenGameLobby_OnJoinStarted;
+    KitchenGameLobby.Instance.OnJoinFailed -= KitchenGameLobby_OnJoinFailed;
+    KitchenGameLobby.Instance.OnQuickJoinFailedStarted -= KitchenGameLobby_OnQuickJoinFailedStarted;
+  }
+
   private void KitchenGameLobby_OnQuickJoinFailedStarted(object sender, System.EventArgs e) {
     ShowMessage("Could Not found a lobby to Quick join!");
   }
@@ -42,10 +53,6 @@ public class LobbyMessageUI : MonoBehaviour {
 
   private void KitchenGameLobby_OnCreateLobbyFailedStarted(object sender, System.EventArgs e) {
     ShowMessage("Fail to Create lobby!");
-  }
-
-  private void OnDestroy() {
-    KitchenGameMultiplayer.Instance.OnFailedToJoinGame -= KitchenGameMultiplayer_OnFailedToJoinGame;
   }
 
   private void KitchenGameMultiplayer_OnFailedToJoinGame(object sender, System.EventArgs e) {
