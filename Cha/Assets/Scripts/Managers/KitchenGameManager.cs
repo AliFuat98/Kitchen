@@ -43,7 +43,7 @@ public class KitchenGameManager : NetworkBehaviour {
   }
 
   private NetworkVariable<float> countdownToStartTimer = new(3f);
-  private NetworkVariable<float> gamePlayingTimer = new(0f);
+  public NetworkVariable<float> gamePlayingTimer = new(0f);
 
   [SerializeField] private float gamePlayingTimerMax = 10f;
 

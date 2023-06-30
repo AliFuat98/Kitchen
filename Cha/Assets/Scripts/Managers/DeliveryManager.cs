@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -124,6 +125,14 @@ public class DeliveryManager : NetworkBehaviour {
 
   [ServerRpc(RequireOwnership = false)]
   private void DeliverCorrectRecipeServerRpc(int recipeIndex) {
+    RecipeSO recipeSO = waitingRecipeSOList.ElementAt(recipeIndex);
+    if (recipeSO.KitchenObjectSOList.Count == 5) {
+      // mega burger geldi
+      KitchenGameManager.Instance.gamePlayingTimer.Value += 2;
+    } else {
+      // baþka bir malzeme geldi
+      KitchenGameManager.Instance.gamePlayingTimer.Value += 1;
+    }
     DeliverCorrectRecipeClientRpc(recipeIndex);
   }
 
