@@ -23,9 +23,9 @@ public class KitchenGameLobby : MonoBehaviour {
 
   public event EventHandler OnJoinStarted;
 
-  public event EventHandler OnJoinFailed;
-
   public event EventHandler OnQuickJoinFailedStarted;
+
+  public event EventHandler OnJoinFailed;
 
   public event EventHandler<OnLobbyListChangedEventArgs> OnLobbyListChanged;
 
@@ -43,9 +43,6 @@ public class KitchenGameLobby : MonoBehaviour {
     Instance = this;
 
     DontDestroyOnLoad(gameObject);
-  }
-
-  private void Start() {
     InitializeUnityAuthentication();
   }
 
@@ -55,7 +52,7 @@ public class KitchenGameLobby : MonoBehaviour {
 
       // ayný pc de build alýnca id deðiþmesi için options geçiyoruz
       InitializationOptions options = new InitializationOptions();
-      //options.SetProfile(UnityEngine.Random.Range(0, 10000).ToString());
+      options.SetProfile(UnityEngine.Random.Range(0, 10000).ToString());
 
       // servisi baþlat
       await UnityServices.InitializeAsync(options);
@@ -70,6 +67,21 @@ public class KitchenGameLobby : MonoBehaviour {
     HandlePeriodicListLobbies();
   }
 
+  private void HandlePeriodicListLobbies() {
+    if (joinedLobby != null ||
+      UnityServices.State != ServicesInitializationState.Initialized ||
+      !AuthenticationService.Instance.IsSignedIn ||
+      SceneManager.GetActiveScene().name != Loader.Scene.LobbyScene.ToString()) {
+      return;
+    }
+    listLobbyTimer -= Time.deltaTime;
+    if (listLobbyTimer < 0f) {
+      float listLobbyTimerMax = 3f;
+      listLobbyTimer = listLobbyTimerMax;
+      ListLobbies();
+    }
+  }
+
   private void HandleHeartBeat() {
     if (IsLobbyHost()) {
       heartBeatTimer -= Time.deltaTime;
@@ -82,23 +94,10 @@ public class KitchenGameLobby : MonoBehaviour {
     }
   }
 
-  private void HandlePeriodicListLobbies() {
-    if (joinedLobby != null ||
-      !AuthenticationService.Instance.IsSignedIn ||
-      SceneManager.GetActiveScene().name != Loader.Scene.LobbyScene.ToString()) {
-      return;
-    }
-    listLobbyTimer -= Time.deltaTime;
-    if (listLobbyTimer < 0) {
-      float listLobbyTimerMax = 3f;
-      listLobbyTimer = listLobbyTimerMax;
-      ListLobbies();
-    }
-  }
-
   #region LOBBY
 
   private async void ListLobbies() {
+    Debug.Log("ListLobbies");
     try {
       QueryLobbiesOptions queryLobbiesOptions = new QueryLobbiesOptions {
         Filters = new List<QueryFilter> {
