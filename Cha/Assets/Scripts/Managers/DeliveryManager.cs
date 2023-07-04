@@ -21,6 +21,9 @@ public class DeliveryManager : NetworkBehaviour {
   /// sipariþ yanluþ ise çalýþacak evet
   public event EventHandler OnRecipeFailed;
 
+  /// verilen sipariþ artýnca çalýþacak event
+  public event EventHandler OnDeliveryAmountChanged;
+
   /// spwan edilebilecek sipariþ listesi
   [SerializeField] private RecipeListSO recipeSOList;
 
@@ -32,7 +35,15 @@ public class DeliveryManager : NetworkBehaviour {
 
   private int waitingRecipeMax = 4;
 
-  private int successfullDeliverAmount;
+  private int xSuccessfullDeliverAmount;
+
+  private int SuccessfullDeliverAmount {
+    get { return xSuccessfullDeliverAmount; }
+    set {
+      xSuccessfullDeliverAmount = value;
+      OnDeliveryAmountChanged?.Invoke(this, EventArgs.Empty);
+    }
+  }
 
   private void Awake() {
     if (Instance != null) {
@@ -144,7 +155,7 @@ public class DeliveryManager : NetworkBehaviour {
     // eventleri baþlat
     OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
     OnRecipeSuccess?.Invoke(this, EventArgs.Empty);
-    successfullDeliverAmount++;
+    SuccessfullDeliverAmount++;
   }
 
   [ServerRpc(RequireOwnership = false)]
@@ -162,6 +173,6 @@ public class DeliveryManager : NetworkBehaviour {
   }
 
   public int GetSuccessfullDeliverAmount() {
-    return successfullDeliverAmount;
+    return SuccessfullDeliverAmount;
   }
 }

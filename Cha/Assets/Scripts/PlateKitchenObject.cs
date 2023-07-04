@@ -45,6 +45,11 @@ public class PlateKitchenObject : KitchenObject {
   private void AddIngredientClientRpc(int kitchenObjectSOIndex) {
     KitchenObjectSO kitchenObjectSO = KitchenGameMultiplayer.Instance.GetKitchenObjectSOFromIndex(kitchenObjectSOIndex);
 
+    if (kitchenObjectSOList.Contains(kitchenObjectSO)) {
+      // zaten bu malzeme türünden var
+      return;
+    }
+
     // yeni bir malzeme türü => malzemeyi ekle
     kitchenObjectSOList.Add(kitchenObjectSO);
 

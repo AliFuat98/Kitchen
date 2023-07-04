@@ -16,11 +16,11 @@ public class PlatesCounter : BaseCounter {
   [SerializeField] private KitchenObjectSO kitchenObjectSO;
 
   /// 4 saniye de bir spwan edilecek tabak
-  private readonly float spawnPlatesTimerMax = 4f;
+  private readonly float spawnPlatesTimerMax = 3.5f;
 
   private float spawnPlatesTimer;
 
-  private readonly int platesSpawnedAmountMax = 4;
+  private readonly int platesSpawnedAmountMax = 5;
   private int platesSpawnedAmount;
 
   private void Update() {
@@ -58,11 +58,11 @@ public class PlatesCounter : BaseCounter {
       if (platesSpawnedAmount > 0) {
         // kutunun üzerinde tabak var
 
-        //  oyuncuya tabak ver
-        KitchenObject.SpwanKitchenObject(kitchenObjectSO, player);
-
         // bir adet tabak görselini sil
         InteractLogicServerRpc();
+
+        //  oyuncuya tabak ver
+        KitchenObject.SpwanKitchenObject(kitchenObjectSO, player);
       }
     } else {
       // oyuncunun eli dolu
@@ -78,8 +78,15 @@ public class PlatesCounter : BaseCounter {
 
   [ClientRpc]
   private void InteractLogicClientRpc() {
+    if (Player.LocalInstance.HasKitchenObject()) {
+      return;
+    }
     // bir adet tabak görselini sil
     platesSpawnedAmount--;
+    if (platesSpawnedAmount < 0) {
+      platesSpawnedAmount = 0;
+      return;
+    }
     OnPlateRemoved?.Invoke(this, new OnPlateSpawnEventArgs {
       platesSpawnedAmount = platesSpawnedAmount
     });

@@ -6,12 +6,17 @@ using UnityEngine.UI;
 public class GameOverUI : MonoBehaviour {
   [SerializeField] private TextMeshProUGUI recipesDeliveredText;
   [SerializeField] private Button playAgainButton;
+  [SerializeField] private Button MainMenuButton;
 
   private void Start() {
     KitchenGameManager.Instance.OnStateChanged += KitchenGameManager_OnStateChanged;
     Hide();
 
     playAgainButton.onClick.AddListener(() => {
+      //KitchenGameManager.Instance.PlayAgain();
+    });
+
+    MainMenuButton.onClick.AddListener(() => {
       NetworkManager.Singleton.Shutdown();
       Loader.Load(Loader.Scene.MainMenuScene);
     });

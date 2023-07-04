@@ -5,6 +5,9 @@ public class FollowTransform : MonoBehaviour {
 
   public void SetTargetTransform(Transform targetTransform) {
     this.targetTransform = targetTransform;
+    if (targetTransform ==null) {
+      Debug.Log("testtt");
+    }
   }
 
   private void LateUpdate() {

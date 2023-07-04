@@ -142,6 +142,15 @@ public class KitchenGameMultiplayer : NetworkBehaviour {
 
   [ServerRpc(RequireOwnership = false)]
   private void SpwanKitchenObjectServerRpc(int kitchenObjectSOIndex, NetworkObjectReference kitchenObjectParentNetworkObjectReference) {
+    // parent'ý çek
+    kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
+    IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
+
+    if (kitchenObjectParent.HasKitchenObject()) {
+      // parent zaten var
+      return;
+    }
+
     // listeden malzemeyinin Scriptable objesini çek
     KitchenObjectSO kitchenObjectSO = GetKitchenObjectSOFromIndex(kitchenObjectSOIndex);
 
