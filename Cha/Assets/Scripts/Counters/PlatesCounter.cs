@@ -59,7 +59,7 @@ public class PlatesCounter : BaseCounter {
         // kutunun üzerinde tabak var
 
         // bir adet tabak görselini sil
-        InteractLogicServerRpc();
+        InteractLogicServerRpc(player.GetNetworkObject());
 
         //  oyuncuya tabak ver
         KitchenObject.SpwanKitchenObject(kitchenObjectSO, player);
@@ -72,15 +72,21 @@ public class PlatesCounter : BaseCounter {
   }
 
   [ServerRpc(RequireOwnership = false)]
-  private void InteractLogicServerRpc() {
-    InteractLogicClientRpc();
+  private void InteractLogicServerRpc(NetworkObjectReference kitchenObjectParentNetworkObjectReference) {
+    InteractLogicClientRpc(kitchenObjectParentNetworkObjectReference);
   }
 
   [ClientRpc]
-  private void InteractLogicClientRpc() {
-    if (Player.LocalInstance.HasKitchenObject()) {
+  private void InteractLogicClientRpc(NetworkObjectReference kitchenObjectParentNetworkObjectReference) {
+    // parent'ý çek
+    kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
+    IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
+
+    if (kitchenObjectParent.HasKitchenObject()) {
+      // elinde tabak zaten var çýk
       return;
     }
+
     // bir adet tabak görselini sil
     platesSpawnedAmount--;
     if (platesSpawnedAmount < 0) {

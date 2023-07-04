@@ -90,7 +90,7 @@ public class DeliveryManager : NetworkBehaviour {
     OnRecipeSpawned?.Invoke(this, EventArgs.Empty);
   }
 
-  public void DeliverRecipe(PlateKitchenObject plateKitchenObject) {
+  public void DeliverRecipe(PlateKitchenObject plateKitchenObject, Player player) {
     // tabaðýn üzerindeki malzemeleri tutan liste
     var plateKitchenObjectSOList = plateKitchenObject.GetKitchenObjectSOList();
 
@@ -119,7 +119,7 @@ public class DeliveryManager : NetworkBehaviour {
         if (recipeMatch) {
           // tabaktaki malzeme ile eþleþen bir sipariþ var => sipariþ doðru hazýrlanmýþ
 
-          DeliverCorrectRecipeServerRpc(i);
+          DeliverCorrectRecipeServerRpc(i, player.GetNetworkObject());
 
           return;
         } else {
@@ -135,16 +135,27 @@ public class DeliveryManager : NetworkBehaviour {
   }
 
   [ServerRpc(RequireOwnership = false)]
-  private void DeliverCorrectRecipeServerRpc(int recipeIndex) {
-    RecipeSO recipeSO = waitingRecipeSOList.ElementAt(recipeIndex);
-    if (recipeSO.KitchenObjectSOList.Count == 5) {
-      // mega burger geldi
-      KitchenGameManager.Instance.gamePlayingTimer.Value += 2;
-    } else {
-      // baþka bir malzeme geldi
-      KitchenGameManager.Instance.gamePlayingTimer.Value += 1;
+  private void DeliverCorrectRecipeServerRpc(int recipeIndex, NetworkObjectReference kitchenObjectParentNetworkObjectReference) {
+    // parent'ý çek
+    kitchenObjectParentNetworkObjectReference.TryGet(out NetworkObject kitchenObjectParentNetworkObject);
+    IKitchenObjectParent kitchenObjectParent = kitchenObjectParentNetworkObject.GetComponent<IKitchenObjectParent>();
+
+    if (kitchenObjectParent.HasKitchenObject()) {
+      // oyuncunun elinde malzeme var
+      if (kitchenObjectParent.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject)) {
+        // oyuncunun elinde tabak var
+
+        RecipeSO recipeSO = waitingRecipeSOList.ElementAt(recipeIndex);
+        if (recipeSO.KitchenObjectSOList.Count == 5) {
+          // mega burger geldi
+          KitchenGameManager.Instance.gamePlayingTimer.Value += 2;
+        } else {
+          // baþka bir malzeme geldi
+          KitchenGameManager.Instance.gamePlayingTimer.Value += 1;
+        }
+        DeliverCorrectRecipeClientRpc(recipeIndex);
+      }
     }
-    DeliverCorrectRecipeClientRpc(recipeIndex);
   }
 
   [ClientRpc]

@@ -12,7 +12,7 @@ public class DeliveryCounter : BaseCounter {
         // oyuncunun elinde tabak var
 
         // sipariþi tamamla
-        DeliveryManager.Instance.DeliverRecipe(plateKitchenObject);
+        DeliveryManager.Instance.DeliverRecipe(plateKitchenObject,player);
 
         // tabaðý yok et
         KitchenObject.DestroyKitchenObject(player.GetKitchenObject());
